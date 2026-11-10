@@ -57,6 +57,11 @@ button,a{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .live .lb{font:700 14px var(--display);color:var(--y);letter-spacing:.04em;white-space:nowrap}
 .live button{width:34px;height:34px;border-radius:50%;border:0;background:var(--y);color:var(--ink);display:grid;place-items:center}
 .live button svg{width:14px;height:14px}
+.lang{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--p2);border:1px solid var(--line);flex:none}
+.lang button{font:800 12px var(--mono);letter-spacing:.06em;border:0;background:none;color:var(--mute);padding:7px 9px;border-radius:999px;transition:.15s}
+.lang button:hover{color:#fff}
+.lang button.on{background:#fff;color:var(--ink)}
+@media (max-width:440px){.live .lb{display:none}.nav-in{gap:8px}}
 @keyframes ping{0%{box-shadow:0 0 0 0 rgba(255,59,71,.6)}80%,100%{box-shadow:0 0 0 8px rgba(255,59,71,0)}}
 
 /* ---------- Layout ---------- */
@@ -114,6 +119,7 @@ h1 em{font-style:inherit;color:var(--y);display:block}
 .trigger.hot{background:var(--y);color:var(--ink)}
 .trigger.hot b{color:var(--ink)}
 .trigger.hot::before{content:"● LIVE";font:800 10px var(--mono);letter-spacing:.14em;margin-bottom:8px;animation:blink 1s steps(2) infinite}
+html[lang=ru] .trigger.hot::before{content:"● СЕЙЧАС"}
 .trigger.done b{color:var(--y)}
 @keyframes blink{50%{opacity:.25}}
 
@@ -144,7 +150,7 @@ h1 em{font-style:inherit;color:var(--y);display:block}
 .total{font:900 italic 64px/1 var(--display);color:#fff;margin:10px 0 14px;font-variant-numeric:tabular-nums}
 .total small{font:700 12px var(--mono);font-style:normal;margin-left:8px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase}
 .chiprow{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
-.chiprow .nm{font:700 11px var(--mono);color:var(--mute);letter-spacing:.1em;text-transform:uppercase;width:44px;flex:none}
+.chiprow .nm{font:700 11px var(--mono);color:var(--mute);letter-spacing:.1em;text-transform:uppercase;width:62px;flex:none}
 .pile{display:flex;flex-wrap:wrap;gap:3px;flex:1;min-width:0}
 .chip{--c:#fff;--s:#D7262E;--t:#111;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:800 9px var(--mono);color:var(--t);position:relative;flex:none;
   background:radial-gradient(circle,var(--c) 0 52%,var(--s) 53% 58%,transparent 59%),repeating-conic-gradient(var(--c) 0 22.5deg,var(--s) 22.5deg 45deg);
@@ -219,6 +225,39 @@ h1 em{font-style:inherit;color:var(--y);display:block}
 .pc.dim{opacity:.28}
 .keys{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:16px;color:var(--mute);font-size:13px}
 kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:2px 7px;color:#fff;margin-right:6px}
+
+/* Side pots */
+.sp-head,.sp-row{display:grid;grid-template-columns:minmax(0,1fr) 110px 64px;gap:8px;align-items:center}
+.sp-head{margin-top:16px;padding-bottom:6px}
+.sp-row{padding:6px 0;border-top:1px solid var(--line)}
+.sp-row input{width:100%;min-width:0;font:600 16px var(--body);border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--p3);color:#fff;outline:none;transition:border-color .15s,opacity .15s}
+.sp-row input.amt{font:900 italic 22px var(--display);text-align:right;padding:6px 12px}
+.sp-row input:focus{border-color:var(--y)}
+.sp-row.folded input{opacity:.45}
+.fold{height:42px;border-radius:10px;border:1px solid var(--line);background:var(--p3);color:var(--mute);font:800 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;transition:.15s}
+.fold.on{background:rgba(255,59,71,.14);border-color:rgba(255,59,71,.4);color:#FF8A92}
+.sp-tools{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.sp-tools .pill:disabled{opacity:.35;cursor:not-allowed}
+.sp-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.sp-total .total{margin:0;font-size:40px;color:var(--y)}
+.pot{padding:14px 0;border-top:1px solid var(--line)}
+.pot-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.pot-name{font:900 italic 20px var(--display);text-transform:uppercase}
+.pot-amt{font:900 italic 34px/1 var(--display);color:var(--y);font-variant-numeric:tabular-nums}
+.pot-sub{font-size:13px;color:var(--mute);margin-top:4px;line-height:1.45}
+.pot.back .pot-amt{color:#fff}
+.who-btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.who-btns .pill{font-size:13px}
+.empty{color:var(--mute);font-size:14px;line-height:1.5;margin-top:14px}
+.pay{list-style:none;margin-top:6px}
+.pay li{display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:14px;color:#C9C9D2}
+.pay .got{font:800 15px var(--mono);color:#fff}
+.pay .net{font:700 12px var(--mono);min-width:56px;text-align:right}
+.pay .net.up{color:var(--green)}.pay .net.down{color:#FF8A92}
+.rules{list-style:none;counter-reset:r;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px;margin-top:8px}
+.rules li{counter-increment:r;padding:12px 0 12px 34px;border-top:1px solid var(--line);position:relative;font-size:14px;line-height:1.5;color:#C9C9D2}
+.rules li::before{content:counter(r);position:absolute;left:0;top:12px;font:800 11px var(--mono);color:var(--ink);background:var(--y);padding:2px 6px;clip-path:var(--cut-s)}
+.rules b{color:#fff}
 
 /* ---------- Timer page ---------- */
 .timer-page{min-height:100vh;padding:20px 20px 60px;display:grid;place-items:center;background:var(--bg)}
@@ -338,6 +377,8 @@ footer button:hover{color:var(--red)}
   .pills .pill{flex:1;padding:10px 0}
   .cur.pills{width:max-content}
   .keys{display:none}
+  .sp-head,.sp-row{grid-template-columns:minmax(0,1fr) 92px 58px;gap:6px}
+  .rules{grid-template-columns:minmax(0,1fr)}
 
   .modal .panel{padding:28px 22px 22px}
   .modal h3{font-size:42px}
@@ -362,7 +403,7 @@ footer button:hover{color:var(--red)}
   <div class="nav-in">
     <a class="logo" href="#top" aria-label="Turbo Poker, back to top"><b>TURBO</b><span>Poker</span></a>
     <nav class="tabs" aria-label="Sections">
-      <a href="#setup">Setup</a><a href="#chips">Chips</a><a href="#prizes">Prizes</a><a href="#hands">Hands</a><a href="#timer">Timer</a>
+      <a href="rules.html">Rules</a><a href="#timer">Timer</a>
     </nav>
     <div class="live" id="live">
       <span class="dot"></span>
@@ -370,6 +411,7 @@ footer button:hover{color:var(--red)}
       <span class="lb" id="liveBlinds">1 / 2</span>
       <button id="miniPlay" aria-label="Start timer"></button>
     </div>
+    <div class="lang" id="lang" role="group" aria-label="Language"><button data-lang="en">EN</button><button data-lang="ru">RU</button></div>
   </div>
 </header>
 
@@ -384,7 +426,7 @@ footer button:hover{color:var(--red)}
     <div class="pick">
       <div class="k seg-label">How many players?</div>
       <div class="seg" id="seg">
-        <button data-n="2">2<small>HEADS-UP</small></button><button data-n="3">3<small>PLAYERS</small></button><button data-n="4">4<small>PLAYERS</small></button><button data-n="5" class="on">5<small>PLAYERS</small></button>
+        <button data-n="2">2<small data-ru="ВДВОЁМ">HEADS-UP</small></button><button data-n="3">3<small data-ru="ИГРОКА">PLAYERS</small></button><button data-n="4">4<small data-ru="ИГРОКА">PLAYERS</small></button><button data-n="5" class="on">5<small data-ru="ИГРОКОВ">PLAYERS</small></button>
       </div>
     </div>
   </section>
@@ -462,6 +504,36 @@ footer button:hover{color:var(--red)}
     <ol class="hands" id="handList"></ol>
     <div class="keys"><span><kbd>Space</kbd>Start / pause</span><span><kbd>N</kbd>Next level</span><span><kbd>F</kbd>Full screen</span><span><kbd>M</kbd>Sound</span><span><kbd>T</kbd>Open timer</span></div>
   </div>
+
+  <div class="sec" id="pots"><h2><span class="num">05</span>Side pots</h2><span class="hint">When players go all-in with different stacks</span></div>
+  <div class="row">
+    <div class="panel card">
+      <h3>Who put in what</h3>
+      <div class="sub">Enter the total each player put in this hand, across every betting round. Number players starting from the seat left of the dealer. Tap Fold for anyone who folded: their chips stay in the pot, but they can't win it.</div>
+      <div class="sp-head k"><span>Player</span><span style="text-align:right">Chips in</span><span></span></div>
+      <div id="spRows"></div>
+      <div class="sp-tools"><button class="pill" id="spAdd">+ Player</button><button class="pill" id="spDel">− Player</button><button class="pill" id="spClear">Clear hand</button></div>
+      <div class="sp-total"><span class="k">Total in the middle</span><div class="total" id="spTotal">0</div></div>
+    </div>
+    <div class="panel card">
+      <h3>The pots</h3>
+      <div class="sub">Tap who won each pot. Tap two or more players to split it. Pay the last side pot first, then work back to the main pot.</div>
+      <div id="spPots"></div>
+      <div id="spPay"></div>
+    </div>
+  </div>
+
+  <div class="sec" id="rules"><h2><span class="num">06</span>Dealer cheat sheet</h2><span class="hint">The rules that cause arguments</span></div>
+  <div class="panel card">
+    <ol class="rules">
+      <li><b>Heads-up (2 players).</b> The dealer posts the small blind and acts first before the flop, then last on every later round.</li>
+      <li><b>Minimum raise.</b> A raise must be at least as big as the last bet or raise. Blinds 25/50, someone raises to 150 (+100), so the next raise is to at least 250.</li>
+      <li><b>Short all-in.</b> An all-in smaller than a full raise doesn't reopen betting for players who already acted. They can only call or fold.</li>
+      <li><b>Showdown.</b> The last player to bet or raise on the river shows first. If everyone checked, the first player left of the button shows first.</li>
+      <li><b>Odd chip.</b> When a split pot doesn't divide evenly, the extra chip goes to the winner closest to the left of the button. The calculator does this for you.</li>
+    </ol>
+    <a class="jl" href="rules.html" style="display:inline-block;text-decoration:none">Full rules and whose turn it is →</a>
+  </div>
 </main>
 
 <section class="timer-page" id="timer">
@@ -526,7 +598,20 @@ const BIG={
 };
 const SETUP={5:{v:100,c:[5,5,7],at:3,latest:5},4:{v:120,c:[5,7,8],at:2,latest:5},3:{v:150,c:[5,9,10],at:2,latest:5},2:{v:200,c:[5,9,15],at:null,latest:4}};
 const D=[1,5,10],NAMES={1:'white',5:'red',10:'blue'};
+const NAMES_RU={1:'белые',5:'красные',10:'синие'},NAMES_RU_OF={1:'белых',5:'красных',10:'синих'};
 const PER_COLOUR=40; // chips of each colour in the set
+const HANDS_RU=[
+  ['Роял-флеш','A K Q J 10 одной масти'],
+  ['Стрит-флеш','Пять карт подряд одной масти'],
+  ['Каре','Четыре карты одного достоинства'],
+  ['Фулл-хаус','Тройка плюс пара'],
+  ['Флеш','Любые пять карт одной масти'],
+  ['Стрит','Пять карт подряд, масти любые'],
+  ['Тройка','Три карты одного достоинства'],
+  ['Две пары','Две разные пары'],
+  ['Пара','Две карты одного достоинства'],
+  ['Старшая карта','Ничего нет, играет самая старшая карта']
+];
 const HANDS=[
   ['Royal flush','A K Q J 10, all the same suit','A♠ K♠ Q♠ J♠ 10♠'],
   ['Straight flush','Five cards in a row, all the same suit','9♥ 8♥ 7♥ 6♥ 5♥'],
@@ -542,6 +627,11 @@ const HANDS=[
 const $=id=>document.getElementById(id);
 const KEY='turbo-poker-v2';
 
+/* ---------- Language ---------- */
+const LKEY='turbo-lang';
+let LANG='en';try{if(localStorage.getItem(LKEY)==='ru')LANG='ru'}catch(e){}
+const L=(en,ru)=>LANG==='ru'?ru:en;
+
 let mult=5,LEN=600,full=600;
 let n=5,alive=5,lvl=0,rem=LEN,running=false,tick=null;
 let outs=[],buyin=10,cur='$',split=null,sound=true,played=0;
@@ -549,7 +639,7 @@ let outs=[],buyin=10,cur='$',split=null,sound=true,played=0;
 const lv=i=>i<5?LOW[i]:BIG[mult][i-5];
 const big=i=>i>=5;
 const fmt=s=>`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
-const fmtLong=s=>{const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h}h ${String(m).padStart(2,'0')}m`:`${m}:${String(s%60).padStart(2,'0')}`};
+const fmtLong=s=>{const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h}${L('h','ч')} ${String(m).padStart(2,'0')}${L('m','м')}`:`${m}:${String(s%60).padStart(2,'0')}`};
 const pending=()=>!big(lvl)&&SETUP[n].at&&alive<=SETUP[n].at;
 const switchNext=()=>!big(lvl)&&(pending()||lvl+1>=SETUP[n].latest);
 const chips=(d,q)=>{let s='';for(let i=0;i<Math.min(q,20);i++)s+=`<div class="chip c${d}">${d}</div>`;return s};
@@ -580,40 +670,41 @@ function load(){
 /* ---------- Render ---------- */
 function render(){
   const [sb,bb]=lv(lvl),s=SETUP[n],b0=lv(5).join(' / '),isBig=big(lvl);
-  const league=isBig?'Big League':'Low League',bl=`${sb} / ${bb}`,t=fmt(rem),pct=Math.max(0,100-rem/full*100)+'%';
+  const league=isBig?L('Big League','Большая лига'):L('Low League','Малая лига'),bl=`${sb} / ${bb}`,t=fmt(rem),pct=Math.max(0,100-rem/full*100)+'%';
+  const lvlTxt=L(`Level ${lvl+1} of 10`,`Уровень ${lvl+1} из 10`);
   // timer page
   $('tag').textContent=league;$('tag').className='tag'+(isBig?' big':'');
   $('blinds').textContent=bl;
   $('time').textContent=t;$('time').classList.toggle('low',rem<=60);$('time').classList.toggle('crit',running&&rem<=10);
-  $('lvl').textContent=`Level ${lvl+1} of 10`;
+  $('lvl').textContent=lvlTxt;
   $('bar').style.width=pct;
-  $('play').textContent=running?'Pause':'Start';
+  $('play').textContent=running?L('Pause','Пауза'):L('Start','Старт');
   $('clock').classList.toggle('big-on',isBig);
-  $('nextInfo').innerHTML=switchNext()?`Up next: <b>Big League, ${b0}</b>`:lvl<9?`Up next: <b>${lv(lvl+1).join(' / ')}</b>`:'Final level. Play until there is a winner.';
+  $('nextInfo').innerHTML=switchNext()?L(`Up next: <b>Big League, ${b0}</b>`,`Дальше: <b>Большая лига, ${b0}</b>`):lvl<9?`${L('Up next','Дальше')}: <b>${lv(lvl+1).join(' / ')}</b>`:L('Final level. Play until there is a winner.','Последний уровень. Играйте, пока не определится победитель.');
   $('footAlive').textContent=`${alive} / ${n}`;
   $('elapsed').textContent=fmtLong(played);
   // board
   $('jumpTime').textContent=t;$('jumpTime').classList.toggle('low',rem<=60);
   $('boardTag').textContent=league;$('boardTag').className='tag'+(isBig?' big':'');
-  $('boardLvl').textContent=`Level ${lvl+1} of 10`;
+  $('boardLvl').textContent=lvlTxt;
   $('boardBlinds').textContent=bl;
   $('thinBar').style.width=pct;
   // top bar
   $('liveTime').textContent=t;$('liveBlinds').textContent=bl;
   $('live').classList.toggle('on',running);
   $('miniPlay').innerHTML=running?ICON.pause:ICON.play;
-  $('miniPlay').setAttribute('aria-label',running?'Pause timer':'Start timer');
+  $('miniPlay').setAttribute('aria-label',running?L('Pause timer','Пауза'):L('Start timer','Запустить таймер'));
   document.title=running?`${t} · ${bl} · Turbo Poker`:'Turbo Poker';
   // players
-  $('alive').textContent=alive;$('aliveOf').textContent=`of ${n}`;
+  $('alive').textContent=alive;$('aliveOf').textContent=L(`of ${n}`,`из ${n}`);
   $('minus').disabled=alive<=1;$('plus').disabled=!outs.length;
   const tr=$('trigger');
-  if(alive===1){tr.className='trigger done';tr.innerHTML='<b>We have a winner</b>Game over. Press Reset for a rematch.'}
-  else if(isBig){tr.className='trigger done';tr.innerHTML='<b>Big League live</b>Only 25s and 100s from here on.'}
-  else if(pending()){tr.className='trigger hot';tr.innerHTML='<b>Switch triggered</b>Move up when this level ends.'}
-  else{tr.className='trigger';tr.innerHTML=s.at?`<b>Switch rule</b>At ${s.at} players left, or after Level ${s.latest}.`:`<b>Switch rule</b>After Level ${s.latest} (${s.latest*LEN/60} min).`}
-  $('ladder').innerHTML=Array.from({length:10},(_,i)=>lv(i)).map((x,i)=>`<button class="step${big(i)?' p2':''}${i===5?' split':''}${i===lvl?' now':''}${i<lvl?' past':''}" data-i="${i}" aria-label="Level ${i+1}, blinds ${x[0]} / ${x[1]}"><div class="l">${big(i)?'BIG '+(i-4):'L'+(i+1)}</div><div class="b">${x[0]}/${x[1]}</div></button>`).join('');
-  $('modalText').innerHTML=`Finish this hand, then everyone ${mult>1?`multiplies their stack by ${mult}, `:''}rounds up to the next 25 and swaps for 25s and 100s. Blinds start at <b>${b0}</b>.`;
+  if(alive===1){tr.className='trigger done';tr.innerHTML=L('<b>We have a winner</b>Game over. Press Reset for a rematch.','<b>Есть победитель</b>Игра окончена. Нажмите «Заново», чтобы сыграть ещё раз.')}
+  else if(isBig){tr.className='trigger done';tr.innerHTML=L('<b>Big League live</b>Only 25s and 100s from here on.','<b>Идёт Большая лига</b>Дальше только фишки по 25 и 100.')}
+  else if(pending()){tr.className='trigger hot';tr.innerHTML=L('<b>Switch triggered</b>Move up when this level ends.','<b>Пора переходить</b>Переходите, когда закончится этот уровень.')}
+  else{tr.className='trigger';tr.innerHTML=s.at?L(`<b>Switch rule</b>At ${s.at} players left, or after Level ${s.latest}.`,`<b>Правило перехода</b>Когда останется ${s.at} игрока, или после уровня ${s.latest}.`):L(`<b>Switch rule</b>After Level ${s.latest} (${s.latest*LEN/60} min).`,`<b>Правило перехода</b>После уровня ${s.latest} (${s.latest*LEN/60} мин).`)}
+  $('ladder').innerHTML=Array.from({length:10},(_,i)=>lv(i)).map((x,i)=>`<button class="step${big(i)?' p2':''}${i===5?' split':''}${i===lvl?' now':''}${i<lvl?' past':''}" data-i="${i}" aria-label="${L(`Level ${i+1}, blinds`,`Уровень ${i+1}, блайнды`)} ${x[0]} / ${x[1]}"><div class="l">${big(i)?L('BIG ','БОЛ ')+(i-4):L('L','У')+(i+1)}</div><div class="b">${x[0]}/${x[1]}</div></button>`).join('');
+  $('modalText').innerHTML=L(`Finish this hand, then everyone ${mult>1?`multiplies their stack by ${mult}, `:''}rounds up to the next 25 and swaps for 25s and 100s. Blinds start at <b>${b0}</b>.`,`Доиграйте эту раздачу. Затем каждый ${mult>1?`умножает свой стек на ${mult}, `:''}округляет вверх до 25 и меняет фишки на 25 и 100. Блайнды начинаются с <b>${b0}</b>.`);
   $('soundBtn').innerHTML=sound?ICON.on:ICON.off;$('soundBtn').classList.toggle('off',!sound);
   renderPrizes();
   save();
@@ -621,10 +712,10 @@ function render(){
 
 function renderStacks(){
   const s=SETUP[n];
-  $('total').innerHTML=`${s.v}<small>chips</small>`;
-  $('piles').innerHTML=D.map((d,i)=>`<div class="chiprow"><span class="nm">${NAMES[d]}</span><div class="pile">${chips(d,s.c[i])}</div><div class="qty">×${s.c[i]}</div></div>`).join('');
+  $('total').innerHTML=`${s.v}<small>${L('chips','фишек')}</small>`;
+  $('piles').innerHTML=D.map((d,i)=>`<div class="chiprow"><span class="nm">${L(NAMES[d],NAMES_RU[d])}</span><div class="pile">${chips(d,s.c[i])}</div><div class="qty">×${s.c[i]}</div></div>`).join('');
   const left=D.map((d,i)=>PER_COLOUR-s.c[i]*n);
-  $('bank').textContent='Left in the bank for change: '+D.map((d,i)=>`${left[i]} ${NAMES[d]}`).join(', ')+'.';
+  $('bank').textContent=L('Left in the bank for change: ','Остаётся в банке на размен: ')+D.map((d,i)=>`${left[i]} ${L(NAMES[d],NAMES_RU_OF[d])}`).join(', ')+'.';
   $('bank').classList.toggle('warn',left.some(x=>x<0));
   document.querySelectorAll('#seg button').forEach(x=>x.classList.toggle('on',+x.dataset.n===n));
 }
@@ -636,7 +727,7 @@ function colorUp(){
   const parts=[[25,k],[100,(nv-25*k)/100]];
   $('newStack').textContent=nv.toLocaleString();
   $('payout').innerHTML=parts.map(([d,q])=>`<div><div class="q">${q} × ${d}</div><div class="pile">${chips(d,q)}</div></div>`).join('');
-  $('how').textContent=`Count your stack${mult>1?`, multiply by ${mult}`:''}, then round up to the next 25. Swap your chips for green 25s and black 100s.`;
+  $('how').textContent=L(`Count your stack${mult>1?`, multiply by ${mult}`:''}, then round up to the next 25. Swap your chips for green 25s and black 100s.`,`Посчитайте свой стек${mult>1?`, умножьте на ${mult}`:''}, затем округлите вверх до 25. Поменяйте фишки на зелёные 25 и чёрные 100.`);
   document.querySelectorAll('#mult .pill').forEach(x=>x.classList.toggle('on',+x.dataset.m===mult));
 }
 
@@ -652,22 +743,22 @@ function renderPrizes(){
   });
   document.querySelectorAll('#cur .pill').forEach(b=>b.classList.toggle('on',b.dataset.c===cur));
   const paid=amts.length,st=$('state');
-  if(alive===1){st.className='state win';st.textContent=`🏆 Winner takes ${money(amts[0])}`}
-  else if(paid>1&&alive===paid+1){st.className='state bubble';st.textContent='Bubble: the next player out wins nothing'}
-  else if(paid>1&&alive<=paid){st.className='state itm';st.textContent='Everyone left wins a prize'}
-  else{st.className='state';st.textContent=`${alive} players left · ${paid} paid place${paid>1?'s':''}`}
+  if(alive===1){st.className='state win';st.textContent=`🏆 ${L('Winner takes','Победитель забирает')} ${money(amts[0])}`}
+  else if(paid>1&&alive===paid+1){st.className='state bubble';st.textContent=L('Bubble: the next player out wins nothing','Пузырь: следующий, кто вылетит, ничего не получит')}
+  else if(paid>1&&alive<=paid){st.className='state itm';st.textContent=L('Everyone left wins a prize','Все оставшиеся получат приз')}
+  else{st.className='state';st.textContent=L(`${alive} players left · ${paid} paid place${paid>1?'s':''}`,`Осталось игроков: ${alive} · призовых мест: ${paid}`)}
   const byPlace={};outs.forEach(o=>byPlace[o.place]=o);
   let html='';
   for(let p=1;p<=n;p++){
     const o=byPlace[p],a=amts[p-1],win=p===1&&alive===1;
-    const who=win?'Winner':o?`Out at Level ${o.lvl}${o.at?' · '+fmtLong(o.at):''}`:'Still playing';
-    html+=`<li class="${a!=null?'paid':''}${o?' out':''}${win?' win':''}"><span class="pl">${p}${['st','nd','rd'][p-1]||'th'}</span><span class="who">${who}</span><span class="amt">${a!=null?money(a):'—'}</span></li>`;
+    const who=win?L('Winner','Победитель'):o?`${L('Out at Level','Вылет на уровне')} ${o.lvl}${o.at?' · '+fmtLong(o.at):''}`:L('Still playing','Ещё в игре');
+    html+=`<li class="${a!=null?'paid':''}${o?' out':''}${win?' win':''}"><span class="pl">${p}${L(['st','nd','rd'][p-1]||'th','-е')}</span><span class="who">${who}</span><span class="amt">${a!=null?money(a):'—'}</span></li>`;
   }
   $('stand').innerHTML=html;
 }
 
 function renderHands(){
-  $('handList').innerHTML=HANDS.map(([nm,d,c,m])=>`<li><span class="hn">${nm}<small>${d}</small></span><span class="cards">${c.split(' ').map((x,i)=>{const r=x.slice(0,-1),su=x.slice(-1);return `<span class="pc${'♥♦'.includes(su)?' r':''}${m&&m[i]==='0'?' dim':''}">${r}<span>${su}</span></span>`}).join('')}</span></li>`).join('');
+  $('handList').innerHTML=HANDS.map(([en,de,c,m],hi)=>{const [nm,d]=LANG==='ru'?HANDS_RU[hi]:[en,de];return `<li><span class="hn">${nm}<small>${d}</small></span><span class="cards">${c.split(' ').map((x,i)=>{const r=x.slice(0,-1),su=x.slice(-1);return `<span class="pc${'♥♦'.includes(su)?' r':''}${m&&m[i]==='0'?' dim':''}">${r}<span>${su}</span></span>`}).join('')}</span></li>`}).join('');
 }
 
 /* ---------- Timer ---------- */
@@ -724,7 +815,7 @@ $('play').onclick=()=>running?stop():start();
 $('miniPlay').onclick=()=>running?stop():start();
 $('nextBtn').onclick=()=>{rem=0;ended()};
 $('reset').onclick=()=>newGame();
-$('newGame').onclick=()=>{if(confirm('Start a new game? This resets the timer, levels and standings.'))newGame()};
+$('newGame').onclick=()=>{if(confirm(L('Start a new game? This resets the timer, levels and standings.','Начать новую игру? Таймер, уровни и результаты будут сброшены.')))newGame()};
 $('minus').onclick=()=>{if(alive>1){outs.push({place:alive,lvl:lvl+1,at:played});alive--;if(alive===1){stop();beep(3,1046)}render()}};
 $('plus').onclick=()=>{if(outs.length){outs.pop();alive++;render()}};
 $('ladder').onclick=e=>{const s=e.target.closest('.step');if(s)setLevel(+s.dataset.i)};
@@ -746,13 +837,144 @@ document.addEventListener('keydown',e=>{
   else if(k==='escape'&&$('modal').classList.contains('show'))$('goBig').click();
 });
 
+/* ---------- Side pots ---------- */
+let sp=[],spWin={};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const spName=i=>sp[i].name.trim()||L(`Player ${i+1}`,`Игрок ${i+1}`);
+const spIn=i=>Math.max(0,Math.floor(+sp[i].amt||0));
+function spInit(k){sp=Array.from({length:k},()=>({name:'',amt:'',fold:false}));spWin={};spRowsRender();spCalc()}
+function spRowsRender(){
+  $('spRows').innerHTML=sp.map((p,i)=>`<div class="sp-row${p.fold?' folded':''}" data-i="${i}"><input class="nm" type="text" maxlength="14" placeholder="${L(`Player ${i+1}`,`Игрок ${i+1}`)}" value="${esc(p.name)}" aria-label="${L(`Player ${i+1} name`,`Имя игрока ${i+1}`)}"><input class="amt" type="number" min="0" inputmode="numeric" placeholder="0" value="${esc(p.amt)}" aria-label="${L(`Chips player ${i+1} put in`,`Фишки игрока ${i+1}`)}"><button class="fold${p.fold?' on':''}" aria-pressed="${p.fold}">${L('Fold','Пас')}</button></div>`).join('');
+  $('spDel').disabled=sp.length<=2;$('spAdd').disabled=sp.length>=9;
+}
+// Split the chips into a main pot and side pots, one layer per all-in amount
+function spPots(){
+  const c=sp.map((_,i)=>spIn(i));
+  const live=sp.map((_,i)=>i).filter(i=>!sp[i].fold&&c[i]>0);
+  const levels=[...new Set(live.map(i=>c[i]))].sort((a,b)=>a-b);
+  const pots=[];let prev=0;
+  levels.forEach(L=>{let amt=0;c.forEach(x=>amt+=Math.min(x,L)-Math.min(x,prev));pots.push({amt,elig:live.filter(i=>c[i]>=L)});prev=L});
+  // Folded chips above the biggest live stack still belong in the last pot
+  const extra=c.reduce((a,x)=>a+Math.max(0,x-prev),0);
+  if(extra){if(pots.length)pots[pots.length-1].amt+=extra;else pots.push({amt:extra,elig:[]})}
+  return pots;
+}
+function spCalc(){
+  const pots=spPots(),total=sp.reduce((a,_,i)=>a+spIn(i),0);
+  $('spTotal').textContent=total.toLocaleString();
+  if(!total){$('spPots').innerHTML=`<div class="empty">${L('Type in how many chips each player put in and the pots will appear here.','Введите, сколько фишек поставил каждый игрок, и здесь появятся банки.')}</div>`;$('spPay').innerHTML='';return}
+  const won=sp.map(()=>0);let open=0,side=0;
+  const potWord=L('Pot','Банк');
+  $('spPots').innerHTML=pots.map((p,pi)=>{
+    const title=pi===0?L('Main pot','Основной банк'):`${L('Side pot','Побочный банк')} ${++side}`;
+    if(p.elig.length===1){
+      const w=p.elig[0];won[w]+=p.amt;
+      return `<div class="pot back"><div class="pot-top"><span class="pot-name">${pots.length===1?potWord:title}</span><span class="pot-amt">${p.amt.toLocaleString()}</span></div><div class="pot-sub">${L(`Goes back to <b>${esc(spName(w))}</b>. Nobody else is still in for these chips.`,`Возвращается игроку <b>${esc(spName(w))}</b>. На эти фишки больше никто не претендует.`)}</div></div>`;
+    }
+    if(!p.elig.length)return `<div class="pot"><div class="pot-top"><span class="pot-name">${title}</span><span class="pot-amt">${p.amt.toLocaleString()}</span></div><div class="pot-sub">${L('Everyone folded. Check the Fold buttons.','Все сбросили карты. Проверьте кнопки «Пас».')}</div></div>`;
+    const ws=(spWin[pi]||[]).filter(i=>p.elig.includes(i)).sort((a,b)=>a-b);
+    let note=L('Who won it?','Кто выиграл?');
+    if(ws.length){
+      const share=Math.floor(p.amt/ws.length),odd=p.amt%ws.length;
+      ws.forEach((w,k)=>won[w]+=share+(k<odd?1:0));
+      const oddTo=ws.slice(0,odd).map(w=>esc(spName(w))).join(', ');
+      note=ws.length===1?L(`${esc(spName(ws[0]))} takes it all.`,`${esc(spName(ws[0]))} забирает всё.`):L(`Split ${ws.length} ways: ${share.toLocaleString()} each${odd?`, plus ${odd} odd chip${odd>1?'s':''} to ${oddTo}`:''}.`,`Делится на ${ws.length}: по ${share.toLocaleString()}${odd?`, лишние фишки (${odd}): ${oddTo}`:''}.`);
+    }else open++;
+    return `<div class="pot"><div class="pot-top"><span class="pot-name">${pots.length===1?potWord:title}</span><span class="pot-amt">${p.amt.toLocaleString()}</span></div><div class="pot-sub">${L('Can be won by','Могут выиграть:')} ${p.elig.map(i=>esc(spName(i))).join(', ')}. ${note}</div><div class="who-btns">${p.elig.map(i=>`<button class="pill${ws.includes(i)?' on':''}" data-p="${pi}" data-w="${i}">${esc(spName(i))}</button>`).join('')}</div></div>`;
+  }).join('');
+  if(open){$('spPay').innerHTML=`<div class="empty">${L(`Pick the winner of ${open>1?`all ${open} pots`:'the pot'} to see who collects what.`,`Выберите победителя ${open>1?`всех банков (${open})`:'банка'}, чтобы увидеть, кто сколько забирает.`)}</div>`;return}
+  $('spPay').innerHTML=`<div class="sp-total" style="margin-bottom:4px"><span class="k">${L('Who collects','Кто забирает')}</span><span class="k">${L('Net','Итог')}</span></div><ul class="pay">`+sp.map((_,i)=>{
+    const put=spIn(i),net=won[i]-put;if(!put&&!won[i])return '';
+    return `<li><span>${esc(spName(i))}</span><span class="got">${won[i].toLocaleString()}</span><span class="net ${net>0?'up':net<0?'down':''}">${net>0?'+':''}${net.toLocaleString()}</span></li>`;
+  }).join('')+'</ul>';
+}
+$('spRows').oninput=e=>{const r=e.target.closest('.sp-row');if(!r)return;const i=+r.dataset.i;
+  if(e.target.classList.contains('nm'))sp[i].name=e.target.value;else sp[i].amt=e.target.value;spCalc()};
+$('spRows').onclick=e=>{const b=e.target.closest('.fold');if(!b)return;const r=b.closest('.sp-row'),i=+r.dataset.i;
+  sp[i].fold=!sp[i].fold;b.classList.toggle('on',sp[i].fold);b.setAttribute('aria-pressed',sp[i].fold);r.classList.toggle('folded',sp[i].fold);spCalc()};
+$('spPots').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;const p=+b.dataset.p,w=+b.dataset.w;
+  const s=new Set(spWin[p]||[]);s.has(w)?s.delete(w):s.add(w);spWin[p]=[...s];spCalc()};
+$('spAdd').onclick=()=>{if(sp.length<9){sp.push({name:'',amt:'',fold:false});spRowsRender();spCalc()}};
+$('spDel').onclick=()=>{if(sp.length>2){sp.pop();spRowsRender();spCalc()}};
+// Keep names, clear chips, folds and winners for the next hand
+$('spClear').onclick=()=>{sp.forEach(p=>{p.amt='';p.fold=false});spWin={};spRowsRender();spCalc()};
+
+/* ---------- Language switch ---------- */
+// Russian for the fixed text on the page. The parts that change during play use L() above.
+const RU={
+  'Setup':'Настройка','Chips':'Фишки','Prizes':'Призы','Hands':'Комбинации','Pots':'Банки','Timer':'Таймер','Rules':'Правила',
+  'Turbo Poker, back to top':'Turbo Poker, наверх','Sections':'Разделы','Language':'Язык','Live game':'Текущая игра',
+  'Short levels and fast blinds. You start in the Low League with small chips, then switch to the Big League and play until one player has every chip.':'Короткие уровни и быстрые блайнды. Вы начинаете в Малой лиге с мелкими фишками, потом переходите в Большую лигу и играете, пока у одного игрока не окажутся все фишки.',
+  'How many players?':'Сколько игроков?',
+  'Players left':'Осталось игроков','Out':'Вылет','Undo':'Отмена','A player is out':'Игрок вылетел','Undo the last knockout':'Отменить последний вылет',
+  'BLINDS':'БЛАЙНДЫ','Open the full-screen timer →':'Открыть таймер на весь экран →','Open the timer':'Открыть таймер',
+  'Blind ladder':'Лестница блайндов','Tap a level to jump to it':'Нажмите на уровень, чтобы перейти к нему',
+  'Starting stacks and the Big League switch':'Стартовые стеки и переход в Большую лигу',
+  'Each player gets':'Каждый игрок получает','Switch to Big League':'Переход в Большую лигу',
+  'Pick the multiplier, then type in your stack to see your new chips':'Выберите множитель, затем введите свой стек, чтобы увидеть новые фишки',
+  'New stack':'Новый стек','Old stack':'Старый стек',
+  'Press “Out” on the game board when a player is knocked out':'Нажимайте «Вылет» на табло, когда игрок выбывает',
+  'Prize pool':'Призовой фонд','Buy-in':'Взнос','Buy-in per player':'Взнос с игрока','Total pool':'Всего в фонде','Winner takes all':'Всё победителю',
+  'Standings':'Результаты','Players are listed in the order they were knocked out':'Игроки идут в порядке вылета',
+  'Hand rankings':'Комбинации','From best to worst':'От старшей к младшей',
+  'Space':'Пробел','Start / pause':'Старт / пауза','Next level':'Следующий уровень','Full screen':'Весь экран','Sound':'Звук','Open timer':'Открыть таймер',
+  'Side pots':'Побочные банки','When players go all-in with different stacks':'Когда игроки идут ва-банк с разными стеками',
+  'Who put in what':'Кто сколько поставил',
+  'Enter the total each player put in this hand, across every betting round. Number players starting from the seat left of the dealer. Tap Fold for anyone who folded: their chips stay in the pot, but they can\'t win it.':'Введите, сколько всего каждый игрок поставил в этой раздаче за все круги ставок. Нумеруйте игроков, начиная с места слева от дилера. Нажмите «Пас» для тех, кто сбросил карты: их фишки остаются в банке, но выиграть его они не могут.',
+  'Player':'Игрок','Chips in':'Поставил','+ Player':'+ Игрок','− Player':'− Игрок','Clear hand':'Новая раздача',
+  'Total in the middle':'Всего на столе','The pots':'Банки',
+  'Tap who won each pot. Tap two or more players to split it. Pay the last side pot first, then work back to the main pot.':'Отметьте, кто выиграл каждый банк. Отметьте двух и более игроков, чтобы разделить его. Сначала раздайте последний побочный банк, потом по порядку до основного.',
+  'Dealer cheat sheet':'Шпаргалка дилера','The rules that cause arguments':'Правила, из-за которых спорят',
+  'Heads-up (2 players).':'Вдвоём (2 игрока).',
+  'The dealer posts the small blind and acts first before the flop, then last on every later round.':'Дилер ставит малый блайнд и ходит первым до флопа, а на всех следующих кругах — последним.',
+  'Minimum raise.':'Минимальный рейз.',
+  'A raise must be at least as big as the last bet or raise. Blinds 25/50, someone raises to 150 (+100), so the next raise is to at least 250.':'Рейз должен быть не меньше предыдущей ставки или рейза. Блайнды 25/50, кто-то поднял до 150 (+100), значит следующий рейз — минимум до 250.',
+  'Short all-in.':'Неполный ва-банк.',
+  'An all-in smaller than a full raise doesn\'t reopen betting for players who already acted. They can only call or fold.':'Ва-банк меньше полного рейза не даёт тем, кто уже сходил, поднять снова. Они могут только уравнять или сбросить.',
+  'Showdown.':'Вскрытие.',
+  'The last player to bet or raise on the river shows first. If everyone checked, the first player left of the button shows first.':'Первым открывает карты тот, кто последним ставил или поднимал на ривере. Если все чекнули — первый игрок слева от баттона.',
+  'Odd chip.':'Лишняя фишка.',
+  'When a split pot doesn\'t divide evenly, the extra chip goes to the winner closest to the left of the button. The calculator does this for you.':'Если банк не делится поровну, лишняя фишка достаётся победителю, который сидит ближе всех слева от баттона. Калькулятор считает это сам.',
+  'Full rules and whose turn it is →':'Все правила и чей ход →',
+  '↑ Setup':'↑ Настройка','Sound on/off (M)':'Звук вкл/выкл (M)','Full screen (F)':'Весь экран (F)','Turn sound on or off':'Включить или выключить звук',
+  'Blinds':'Блайнды','Reset':'Заново','Adjust':'Время','−1 min':'−1 мин','+1 min':'+1 мин','Level length':'Длина уровня','min':'мин',
+  'Players':'Игроки','Played':'Сыграно',
+  'Turbo Poker · Your game is saved on this device':'Turbo Poker · Игра сохраняется на этом устройстве','Start a new game':'Начать новую игру',
+  'Time to switch':'Пора переходить','Big League starts now':'Начинается Большая лига','Let\'s go':'Поехали'
+};
+const origText=new Map(),origAttr=new Map();
+function applyLang(){
+  document.documentElement.lang=LANG;
+  const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let nd;
+  while(nd=w.nextNode()){
+    if(nd.parentNode.closest('script,style,[data-ru]'))continue;
+    const en=origText.has(nd)?origText.get(nd):nd.nodeValue,k=en.trim();
+    if(LANG==='ru'&&RU[k]){origText.set(nd,en);nd.nodeValue=en.replace(k,RU[k])}
+    else if(LANG==='en'&&origText.has(nd))nd.nodeValue=en;
+  }
+  document.querySelectorAll('[title],[aria-label],[placeholder]').forEach(el=>['title','aria-label','placeholder'].forEach(a=>{
+    if(!el.hasAttribute(a))return;
+    const key=origAttr.get(el)||{};const en=key[a]??el.getAttribute(a);
+    if(LANG==='ru'&&RU[en]){key[a]=en;origAttr.set(el,key);el.setAttribute(a,RU[en])}
+    else if(LANG==='en'&&key[a]!=null)el.setAttribute(a,key[a]);
+  }));
+  document.querySelectorAll('[data-ru]').forEach(el=>{if(el.dataset.en==null)el.dataset.en=el.innerHTML;el.innerHTML=LANG==='ru'?el.dataset.ru:el.dataset.en});
+  document.querySelectorAll('#lang button').forEach(b=>b.classList.toggle('on',b.dataset.lang===LANG));
+}
+function setLang(l){
+  LANG=l;try{localStorage.setItem(LKEY,l)}catch(e){}
+  renderHands();renderStacks();colorUp();spRowsRender();spCalc();render();applyLang();
+}
+$('lang').onclick=e=>{const b=e.target.closest('[data-lang]');if(b&&b.dataset.lang!==LANG)setLang(b.dataset.lang)};
+
 /* ---------- Boot ---------- */
 const restored=load();
 $('buyin').value=buyin;
 $('old').value=SETUP[n].v;
-syncLens();renderHands();renderStacks();colorUp();
+syncLens();renderHands();renderStacks();colorUp();spInit(Math.max(2,alive));
 if(restored&&running){running=false;if(rem<=0){rem=0;render();ended()}else start()}
 else render();
+applyLang();
 </script>
 </body>
 </html>
