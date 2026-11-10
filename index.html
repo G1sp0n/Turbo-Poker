@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0C0C0E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Turbo Poker: blind timer, chip stacks, colour-up and payouts for a fast home game.">
+<title>Turbo Poker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,800;1,900&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --y:#FFE100;--y2:#FFF066;--red:#FF3B47;--green:#2BD67B;
+  --ink:#0C0C0E;--bg:#0C0C0E;--p1:#16161A;--p2:#1E1E23;--p3:#27272E;
+  --line:#2E2E36;--mute:#8B8B98;--edge:rgba(255,255,255,.14);
+  --display:"Barlow Condensed","Avenir Next Condensed","Futura",sans-serif;
+  --body:"Barlow","Avenir Next","Helvetica Neue",sans-serif;
+  --mono:"JetBrains Mono","SF Mono","Menlo",monospace;
+  --cut:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);
+  --cut-s:polygon(7px 0,100% 0,calc(100% - 7px) 100%,0 100%);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{min-height:100vh;color:#fff;font-family:var(--body);background:var(--bg);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(700px 500px at 100% -10%,rgba(255,225,0,.16),transparent 65%),
+    radial-gradient(600px 480px at -10% 110%,rgba(255,225,0,.10),transparent 65%),
+    var(--bg)}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+button,a,input{font-family:inherit}
+button{cursor:pointer}
+button,a{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+:focus-visible{outline:2px solid var(--y);outline-offset:3px}
+.nojs{display:block;margin:12px 0 0;padding:12px 16px;background:var(--y);color:var(--ink);font-size:14px;line-height:1.4}
+
+/* ---------- Top bar ---------- */
+.nav{position:sticky;top:0;z-index:20;background:rgba(12,12,14,.86);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);border-bottom:1px solid var(--line)}
+.nav::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--y)}
+.nav-in{max-width:1080px;margin:0 auto;padding:calc(12px + env(safe-area-inset-top)) 20px 12px;display:flex;align-items:center;gap:18px}
+.logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:#fff;flex:none}
+.logo b{font:900 italic 22px/1 var(--display);background:var(--y);color:var(--ink);padding:6px 14px 5px;clip-path:var(--cut-s);letter-spacing:.02em}
+.logo span{font:800 italic 22px/1 var(--display);letter-spacing:.04em;text-transform:uppercase}
+.tabs{display:flex;gap:2px;margin-left:8px}
+.tabs a{font:700 15px var(--display);text-transform:uppercase;letter-spacing:.08em;color:var(--mute);text-decoration:none;padding:8px 12px;position:relative;transition:color .15s}
+.tabs a:hover{color:#fff}
+.tabs a::after{content:"";position:absolute;left:12px;right:12px;bottom:2px;height:2px;background:var(--y);transform:scaleX(0);transition:transform .2s}
+.tabs a:hover::after{transform:scaleX(1)}
+.live{margin-left:auto;display:flex;align-items:center;gap:10px;background:var(--p2);border:1px solid var(--line);padding:5px 5px 5px 12px;border-radius:999px}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--mute);flex:none}
+.live.on .dot{background:var(--red);box-shadow:0 0 0 0 rgba(255,59,71,.6);animation:ping 1.6s infinite}
+.live .lt{font:800 16px var(--mono);font-variant-numeric:tabular-nums;min-width:52px}
+.live .lb{font:700 14px var(--display);color:var(--y);letter-spacing:.04em;white-space:nowrap}
+.live button{width:34px;height:34px;border-radius:50%;border:0;background:var(--y);color:var(--ink);display:grid;place-items:center}
+.live button svg{width:14px;height:14px}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(255,59,71,.6)}80%,100%{box-shadow:0 0 0 8px rgba(255,59,71,0)}}
+
+/* ---------- Layout ---------- */
+.wrap{max-width:1080px;margin:0 auto;padding:28px 20px 40px;display:flex;flex-direction:column;gap:18px}
+.panel{background:linear-gradient(180deg,var(--p2),var(--p1));border:1px solid var(--line);border-radius:18px;position:relative}
+.sec{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:14px;flex-wrap:wrap}
+.sec h2{font:900 italic clamp(26px,4vw,34px)/1 var(--display);text-transform:uppercase;letter-spacing:.01em}
+.sec .num{font:800 12px var(--mono);color:var(--ink);background:var(--y);padding:3px 8px;margin-right:10px;vertical-align:middle;clip-path:var(--cut-s);display:inline-block;transform:translateY(-4px)}
+.sec .hint{font:600 13px var(--body);color:var(--mute)}
+.k{font:700 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+
+/* Hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:center;padding:28px;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-60px;top:-40px;bottom:-40px;width:46%;pointer-events:none;opacity:.07;
+  background:repeating-linear-gradient(-60deg,var(--y) 0 18px,transparent 18px 44px)}
+h1{font:900 italic clamp(48px,8vw,92px)/.86 var(--display);text-transform:uppercase;letter-spacing:-.01em}
+h1 em{font-style:inherit;color:var(--y);display:block}
+.lede{color:#C9C9D2;font-size:16px;line-height:1.5;margin-top:14px;max-width:44ch}
+.pick{position:relative;z-index:1}
+.seg-label{margin-bottom:10px}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.seg button{font:900 italic 44px/1 var(--display);height:84px;border:1px solid var(--line);border-radius:14px;background:var(--p3);color:#fff;transition:transform .12s,background .15s,border-color .15s;position:relative}
+.seg button small{display:block;font:700 10px var(--mono);letter-spacing:.12em;font-style:normal;color:var(--mute);margin-top:4px}
+.seg button:hover{border-color:#4A4A55;transform:translateY(-2px)}
+.seg button.on{background:var(--y);color:var(--ink);border-color:var(--y);box-shadow:0 10px 30px rgba(255,225,0,.22)}
+.seg button.on small{color:rgba(12,12,14,.6)}
+
+/* Scoreboard */
+.status{display:grid;grid-template-columns:220px minmax(0,1fr) 260px;gap:0;overflow:hidden}
+.status > *{padding:22px;min-width:0}
+.status > * + *{border-left:1px solid var(--line)}
+.mini{text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.alive{font:900 italic 84px/1 var(--display);margin:4px 0 10px;font-variant-numeric:tabular-nums}
+.alive-of{font:700 13px var(--mono);color:var(--mute);margin:-6px 0 12px}
+.ctr{display:flex;gap:8px;justify-content:center}
+.ctr button{display:flex;align-items:center;gap:6px;height:42px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--p3);color:#fff;font:800 14px var(--display);text-transform:uppercase;letter-spacing:.06em;transition:.15s}
+.ctr button b{font:900 20px/1 var(--display)}
+.ctr button:hover{background:#34343D}
+.ctr button#minus{background:rgba(255,59,71,.14);border-color:rgba(255,59,71,.4);color:#FF8A92}
+.ctr button#minus:hover{background:rgba(255,59,71,.24)}
+.ctr button:disabled{opacity:.35;cursor:not-allowed}
+.board{display:flex;flex-direction:column;justify-content:center;gap:4px;text-decoration:none;color:#fff;position:relative;transition:background .15s}
+.board:hover{background:rgba(255,225,0,.05)}
+.board-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.board-mid{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:6px;flex-wrap:wrap}
+.jt{font:800 56px/1 var(--mono);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.jt.low{color:var(--red)}
+.jb{font:900 italic 40px/1 var(--display);color:var(--y)}
+.jb small{font:700 11px var(--mono);font-style:normal;color:var(--mute);letter-spacing:.12em;margin-right:8px;vertical-align:middle}
+.jl{font:800 13px var(--display);text-transform:uppercase;letter-spacing:.1em;color:var(--y);margin-top:10px}
+.thin{height:4px;background:var(--p3);border-radius:99px;overflow:hidden;margin-top:12px}
+.thin i{display:block;height:100%;width:0;background:var(--y);transition:width .3s linear}
+.trigger{display:flex;flex-direction:column;justify-content:center;font-size:14px;line-height:1.45;color:#C9C9D2;transition:background .2s}
+.trigger b{display:block;font:900 italic 22px/1 var(--display);text-transform:uppercase;color:#fff;margin-bottom:6px}
+.trigger.hot{background:var(--y);color:var(--ink)}
+.trigger.hot b{color:var(--ink)}
+.trigger.hot::before{content:"● LIVE";font:800 10px var(--mono);letter-spacing:.14em;margin-bottom:8px;animation:blink 1s steps(2) infinite}
+.trigger.done b{color:var(--y)}
+@keyframes blink{50%{opacity:.25}}
+
+/* Tags */
+.tag{display:inline-block;font:800 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:6px 14px;background:#fff;color:var(--ink);clip-path:var(--cut-s)}
+.tag.big{background:var(--y)}
+.lvl{font:700 13px var(--mono);color:var(--mute);letter-spacing:.06em}
+
+/* Ladder */
+.ladder{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px;padding:10px}
+.step{border-radius:12px;padding:10px 4px 12px;text-align:center;cursor:pointer;color:#fff;transition:.15s;border:1px solid transparent;position:relative;background:none}
+.step:hover{background:var(--p3)}
+.step .b{font:800 italic 20px var(--display);margin-top:4px}
+.step .l{font:700 10px var(--mono);color:var(--mute);letter-spacing:.08em}
+.step.p2{background:rgba(255,225,0,.04)}
+.step.p2 .l{color:var(--y)}
+.step.now{background:var(--y);color:var(--ink);box-shadow:0 8px 24px rgba(255,225,0,.25)}
+.step.now .l{color:var(--ink)}
+.step.past{opacity:.35}
+.step.split{margin-left:10px}
+.step.split::before{content:"";position:absolute;left:-9px;top:10%;bottom:10%;width:2px;background:repeating-linear-gradient(var(--y) 0 4px,transparent 4px 8px)}
+
+/* Cards */
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.card{padding:24px;min-width:0}
+.card h3{font:900 italic 24px var(--display);text-transform:uppercase}
+.card .sub{color:var(--mute);font-size:13px;margin-top:2px}
+.total{font:900 italic 64px/1 var(--display);color:#fff;margin:10px 0 14px;font-variant-numeric:tabular-nums}
+.total small{font:700 12px var(--mono);font-style:normal;margin-left:8px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase}
+.chiprow{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.chiprow .nm{font:700 11px var(--mono);color:var(--mute);letter-spacing:.1em;text-transform:uppercase;width:44px;flex:none}
+.pile{display:flex;flex-wrap:wrap;gap:3px;flex:1;min-width:0}
+.chip{--c:#fff;--s:#D7262E;--t:#111;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:800 9px var(--mono);color:var(--t);position:relative;flex:none;
+  background:radial-gradient(circle,var(--c) 0 52%,var(--s) 53% 58%,transparent 59%),repeating-conic-gradient(var(--c) 0 22.5deg,var(--s) 22.5deg 45deg);
+  box-shadow:0 2px 6px rgba(0,0,0,.4),inset 0 0 0 1px rgba(0,0,0,.25)}
+.c1{--c:#F4F4F4;--s:#3B6FE0;--t:#111}
+.c5{--c:#D7262E;--s:#fff;--t:#fff}
+.c10{--c:#1E5BD8;--s:#fff;--t:#fff}
+.c25{--c:#17A04A;--s:#fff;--t:#fff}
+.c100{--c:#141416;--s:var(--y);--t:#fff}
+.qty{font:900 italic 26px var(--display);color:#fff;text-align:right;min-width:52px}
+.bankline{font-size:13px;color:var(--mute);margin-top:12px;line-height:1.5;padding-top:12px;border-top:1px dashed var(--line)}
+.bankline.warn{color:var(--red)}
+
+.cu .field{display:flex;align-items:center;gap:10px;margin:14px 0 10px}
+.cu input{flex:1;min-width:0;font:900 italic 40px var(--display);border:1px solid var(--line);border-radius:12px;padding:4px 14px;background:var(--p3);color:#fff;outline:none;transition:border-color .15s}
+.cu input:focus{border-color:var(--y)}
+.cu .arrow-ico{font:900 28px var(--display);color:var(--y)}
+.cu #newStack{color:var(--y);margin:0 0 6px}
+.payout{display:flex;gap:22px;flex-wrap:wrap;margin-top:8px;color:#fff}
+.payout .q{font:900 italic 22px var(--display);margin-bottom:6px}
+.how{color:#C9C9D2;font-size:14px;margin-top:12px;line-height:1.5}
+.mult{margin-top:14px;width:100%;max-width:360px}
+.mult .pill{flex:1;font-size:15px;padding:9px 0}
+
+/* Pills / buttons */
+.pills{display:flex;gap:4px;padding:4px;border-radius:12px;background:var(--p3);border:1px solid var(--line)}
+.pill{font:800 14px var(--mono);padding:8px 12px;border-radius:9px;border:1px solid var(--line);background:var(--p3);color:#fff;transition:.15s}
+.pills .pill{border-color:transparent;background:transparent}
+.pill:hover{background:#3A3A44}
+.pill.on{background:var(--y)!important;color:var(--ink)}
+.btn{font:900 italic 20px var(--display);text-transform:uppercase;letter-spacing:.04em;padding:15px 30px;border:0;background:var(--p3);color:#fff;clip-path:var(--cut);transition:transform .1s,background .15s}
+.btn:hover{background:#3A3A44}
+.btn:active{transform:scale(.97)}
+.btn.main{background:var(--y);color:var(--ink);min-width:170px}
+.btn.main:hover{background:var(--y2)}
+
+/* Prizes */
+.money{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:end;margin-top:14px}
+.money label{display:block}
+.money input{width:120px;font:900 italic 32px var(--display);border:1px solid var(--line);border-radius:12px;padding:4px 12px;background:var(--p3);color:#fff;outline:none;margin-top:6px}
+.money input:focus{border-color:var(--y)}
+.pool{text-align:right}
+.pool .total{margin:4px 0 0;color:var(--y)}
+.splits{margin-top:14px}
+.splits .pill{flex:1;font-size:13px;padding:9px 4px;white-space:nowrap}
+.cur{width:max-content;margin-top:6px}
+.cur .pill{padding:8px 11px}
+.state{margin-top:14px;padding:10px 14px;border-radius:10px;font:800 13px var(--mono);letter-spacing:.06em;text-transform:uppercase;background:var(--p3);color:var(--mute)}
+.state.bubble{background:rgba(255,59,71,.15);color:#FF8A92}
+.state.itm{background:rgba(43,214,123,.13);color:var(--green)}
+.state.win{background:var(--y);color:var(--ink)}
+.stand{list-style:none;margin-top:12px}
+.stand li{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.stand .pl{font:900 italic 22px var(--display);color:var(--mute)}
+.stand .who{font-size:14px;color:#C9C9D2}
+.stand .amt{font:800 15px var(--mono)}
+.stand li.paid .pl{color:var(--y)}
+.stand li.out .who{color:var(--mute)}
+.stand li.win{background:linear-gradient(90deg,rgba(255,225,0,.14),transparent)}
+.stand li.win .who{color:#fff;font-weight:700}
+
+/* Hands */
+.hands{list-style:none;counter-reset:h}
+.hands li{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--line);counter-increment:h}
+.hands li::before{content:counter(h);font:800 12px var(--mono);color:var(--mute)}
+.hands li:first-child::before{color:var(--y)}
+.hands .hn{font:800 italic 18px var(--display);text-transform:uppercase;letter-spacing:.02em}
+.hands .hn small{display:block;font:500 12px var(--body);font-style:normal;text-transform:none;color:var(--mute);letter-spacing:0}
+.cards{display:flex;gap:3px}
+.pc{width:26px;height:36px;border-radius:5px;background:#F6F6F2;color:#111;font:800 12px/1 var(--mono);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.pc.r{color:#D7262E}
+.pc.dim{opacity:.28}
+.keys{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:16px;color:var(--mute);font-size:13px}
+kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:2px 7px;color:#fff;margin-right:6px}
+
+/* ---------- Timer page ---------- */
+.timer-page{min-height:100vh;padding:20px 20px 60px;display:grid;place-items:center;background:var(--bg)}
+.timer-page:fullscreen{padding:20px}
+.clock{width:100%;max-width:1100px;min-height:calc(100vh - 120px);padding:56px 40px 40px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden}
+.timer-page:fullscreen .clock{min-height:calc(100vh - 40px);max-width:none}
+.clock::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(60% 50% at 50% 40%,rgba(255,225,0,.22),transparent 70%);transition:opacity .4s}
+.clock.big-on::before{opacity:1}
+.clock.flash{animation:flash .7s ease-out}
+@keyframes flash{0%{box-shadow:0 0 0 0 rgba(255,225,0,0),inset 0 0 0 0 var(--y)}20%{box-shadow:0 0 80px 10px rgba(255,225,0,.35),inset 0 0 0 3px var(--y)}100%{box-shadow:0 0 0 0 rgba(255,225,0,0),inset 0 0 0 0 var(--y)}}
+.clock-top{position:absolute;top:18px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.back{font:700 12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);text-decoration:none;padding:8px 0}
+.back:hover{color:var(--y)}
+.tools{display:flex;gap:6px}
+.icon{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--p3);color:#fff;display:grid;place-items:center;transition:.15s}
+.icon:hover{background:#3A3A44}
+.icon svg{width:18px;height:18px}
+.icon.off{color:var(--mute)}
+.meta{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap}
+.lvl.big{font-size:15px}
+.time{font:800 clamp(110px,22vw,300px)/1 var(--mono);letter-spacing:-.05em;margin-top:14px;font-variant-numeric:tabular-nums;position:relative}
+.time.low{color:var(--red)}
+.time.crit{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.45}}
+.bar{width:min(760px,100%);height:8px;border-radius:99px;background:var(--p3);margin-top:12px;overflow:hidden;position:relative}
+.bar i{display:block;height:100%;background:var(--y);width:0%;border-radius:99px;transition:width .3s linear}
+.time.low ~ .bar i{background:var(--red)}
+.blinds{font:900 italic clamp(56px,9vw,112px)/1 var(--display);color:var(--y);margin-top:30px;display:flex;align-items:baseline;gap:18px}
+.bl-k{font:700 13px var(--mono);font-style:normal;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.next{color:#C9C9D2;font-size:18px;margin-top:12px}
+.next b{font-weight:800;color:#fff}
+.ctrls{display:flex;gap:10px;margin-top:34px;flex-wrap:wrap;justify-content:center}
+.timeset{display:flex;gap:28px;margin-top:24px;flex-wrap:wrap;justify-content:center;align-items:center}
+.ts-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
+.ts-k{font:700 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.clock-foot{position:absolute;bottom:16px;left:20px;right:20px;display:flex;justify-content:space-between;font:700 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.clock-foot b{color:#fff}
+
+/* Modal */
+.modal{position:fixed;inset:0;display:none;place-items:center;z-index:40;padding:20px;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.modal.show{display:grid}
+.modal .panel{max-width:480px;padding:34px 30px 30px;overflow:hidden;border-color:var(--y);animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
+.modal .panel::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:repeating-linear-gradient(-45deg,var(--y) 0 12px,var(--ink) 12px 24px)}
+.modal h3{font:900 italic 52px/.92 var(--display);text-transform:uppercase;color:var(--y);margin-top:8px}
+.modal p{margin:14px 0 22px;line-height:1.55;color:#DADAE2}
+.modal p b{color:#fff}
+@keyframes pop{from{transform:scale(.85);opacity:0}}
+
+footer{max-width:1080px;margin:0 auto;padding:0 20px 40px;color:var(--mute);font-size:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+footer button{background:none;border:0;color:var(--mute);font:700 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;text-decoration:underline;text-underline-offset:3px}
+footer button:hover{color:var(--red)}
+
+/* Entry animation */
+.rise{animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
+.rise:nth-child(2){animation-delay:.06s}.rise:nth-child(3){animation-delay:.12s}.rise:nth-child(4){animation-delay:.18s}.rise:nth-child(5){animation-delay:.24s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+
+/* ---------- Responsive ---------- */
+@media (max-width:900px){
+  .status{grid-template-columns:200px minmax(0,1fr)}
+  .status .trigger{grid-column:1 / -1;border-left:0;border-top:1px solid var(--line)}
+  .tabs{display:none}
+}
+@media (max-width:760px){
+  .row{grid-template-columns:minmax(0,1fr)}
+  .hero{grid-template-columns:minmax(0,1fr);padding:22px}
+  .ladder{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .step.split{margin-left:0}.step.split::before{display:none}
+}
+@media (max-width:600px){
+  html{scroll-padding-top:70px}
+  .nav-in{padding:calc(10px + env(safe-area-inset-top)) 12px 10px;gap:10px}
+  .logo span{display:none}
+  .live .lb{font-size:13px}
+  .wrap{padding:16px 12px calc(30px + env(safe-area-inset-bottom));gap:12px}
+  .panel{border-radius:16px}
+  h1{font-size:54px}
+  .lede{font-size:15px}
+  .seg button{height:72px;font-size:38px}
+
+  .status{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .status > *{padding:16px 12px}
+  .board{grid-column:1 / -1;order:-1;border-left:0!important;border-bottom:1px solid var(--line)}
+  .mini{border-left:0!important}
+  .status .trigger{grid-column:auto;border-top:0;border-left:1px solid var(--line)!important;font-size:13px}
+  .trigger b{font-size:18px}
+  .alive{font-size:60px;margin-bottom:6px}
+  .ctr button{height:46px;padding:0 12px}
+  .ctr button span{display:none}
+  .jt{font-size:46px}
+  .jb{font-size:32px}
+
+  .ladder{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:8px;gap:6px;scrollbar-width:none}
+  .ladder::-webkit-scrollbar{display:none}
+  .step{flex:0 0 76px;scroll-snap-align:start}
+
+  .card{padding:18px}
+  .total{font-size:52px}
+  .chip{width:25px;height:25px}
+  .cu input{font-size:34px}
+  .money{grid-template-columns:1fr}
+  .pool{text-align:left}
+
+  .timer-page{min-height:100svh;padding:10px 10px calc(20px + env(safe-area-inset-bottom))}
+  .clock{min-height:calc(100svh - 30px);padding:72px 14px 48px}
+  .time{font-size:26vw;margin-top:12px}
+  .blinds{font-size:16vw;margin-top:22px;flex-direction:column;align-items:center;gap:4px}
+  .next{font-size:15px}
+  .ctrls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:8px;margin-top:26px}
+  .ctrls .btn{padding:16px 10px;font-size:18px}
+  .ctrls .btn.main{grid-column:1 / -1;font-size:24px;padding:20px}
+  .timeset{flex-direction:column;gap:14px;width:100%}
+  .ts-group{width:100%}
+  .ts-group .pill[data-add]{flex:1;padding:12px}
+  .pills{width:100%}
+  .pills .pill{flex:1;padding:10px 0}
+  .cur.pills{width:max-content}
+  .keys{display:none}
+
+  .modal .panel{padding:28px 22px 22px}
+  .modal h3{font-size:42px}
+  .modal .btn{width:100%}
+}
+@media (max-width:600px) and (orientation:landscape){
+  .clock{min-height:auto;padding:64px 16px 44px}
+  .time{font-size:17vw}
+  .blinds{font-size:8vw;flex-direction:row;gap:12px}
+}
+@media print{
+  .nav,.ctrls,.ctr,.modal,.back,.tools,.timeset,footer,.keys{display:none!important}
+  .timer-page{min-height:auto;break-before:page}
+  .clock{min-height:auto}
+  body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<header class="nav" id="top">
+  <div class="nav-in">
+    <a class="logo" href="#top" aria-label="Turbo Poker, back to top"><b>TURBO</b><span>Poker</span></a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#setup">Setup</a><a href="#chips">Chips</a><a href="#prizes">Prizes</a><a href="#hands">Hands</a><a href="#timer">Timer</a>
+    </nav>
+    <div class="live" id="live">
+      <span class="dot"></span>
+      <span class="lt" id="liveTime">10:00</span>
+      <span class="lb" id="liveBlinds">1 / 2</span>
+      <button id="miniPlay" aria-label="Start timer"></button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <noscript><div class="nojs"><b>Timer and buttons are off in this preview.</b> Open the file in Safari, Chrome or another browser to use them.</div></noscript>
+
+  <section class="panel hero rise" id="setup">
+    <div>
+      <h1>Turbo<em>Poker</em></h1>
+      <p class="lede">Short levels and fast blinds. You start in the Low League with small chips, then switch to the Big League and play until one player has every chip.</p>
+    </div>
+    <div class="pick">
+      <div class="k seg-label">How many players?</div>
+      <div class="seg" id="seg">
+        <button data-n="2">2<small>HEADS-UP</small></button><button data-n="3">3<small>PLAYERS</small></button><button data-n="4">4<small>PLAYERS</small></button><button data-n="5" class="on">5<small>PLAYERS</small></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel status rise" aria-label="Live game">
+    <div class="mini">
+      <div class="k">Players left</div>
+      <div class="alive" id="alive">5</div>
+      <div class="alive-of" id="aliveOf">of 5</div>
+      <div class="ctr"><button id="minus" title="A player is out"><b>−</b><span>Out</span></button><button id="plus" title="Undo the last knockout"><b>↺</b><span>Undo</span></button></div>
+    </div>
+    <a class="board jump" href="#timer" aria-label="Open the timer">
+      <div class="board-top"><span class="tag" id="boardTag">Low League</span><span class="lvl" id="boardLvl">Level 1 of 10</span></div>
+      <div class="board-mid">
+        <div class="jt" id="jumpTime">10:00</div>
+        <div class="jb"><small>BLINDS</small><span id="boardBlinds">1 / 2</span></div>
+      </div>
+      <div class="thin"><i id="thinBar"></i></div>
+      <div class="jl">Open the full-screen timer →</div>
+    </a>
+    <div class="trigger" id="trigger"><b>Switch rule</b>At 3 players left, or after Level 5.</div>
+  </section>
+
+  <div class="sec rise"><h2><span class="num">01</span>Blind ladder</h2><span class="hint">Tap a level to jump to it</span></div>
+  <div class="panel ladder" id="ladder"></div>
+
+  <div class="sec" id="chips"><h2><span class="num">02</span>Chips</h2><span class="hint">Starting stacks and the Big League switch</span></div>
+  <div class="row">
+    <div class="panel card">
+      <h3>Each player gets</h3>
+      <div class="total" id="total">100<small>chips</small></div>
+      <div id="piles"></div>
+      <div class="bankline" id="bank"></div>
+    </div>
+    <div class="panel card cu">
+      <h3>Switch to Big League</h3>
+      <div class="sub">Pick the multiplier, then type in your stack to see your new chips</div>
+      <div class="pills mult" id="mult">
+        <button class="pill" data-m="1">×1</button><button class="pill" data-m="2">×2</button><button class="pill" data-m="3">×3</button><button class="pill" data-m="4">×4</button><button class="pill on" data-m="5">×5</button>
+      </div>
+      <div class="field">
+        <input id="old" type="number" min="0" value="100" inputmode="numeric" aria-label="Old stack">
+        <span class="arrow-ico">→</span>
+      </div>
+      <div class="k">New stack</div>
+      <div class="total" id="newStack">500</div>
+      <div class="payout" id="payout"></div>
+      <div class="how" id="how"></div>
+    </div>
+  </div>
+
+  <div class="sec" id="prizes"><h2><span class="num">03</span>Prizes</h2><span class="hint">Press “Out” on the game board when a player is knocked out</span></div>
+  <div class="row">
+    <div class="panel card">
+      <h3>Prize pool</h3>
+      <div class="money">
+        <label><span class="k">Buy-in</span><br><input id="buyin" type="number" min="0" value="10" inputmode="decimal" aria-label="Buy-in per player"></label>
+        <div class="pool"><div class="k">Total pool</div><div class="total" id="pool">$50</div></div>
+      </div>
+      <div class="pills cur" id="cur"><button class="pill on" data-c="$">$</button><button class="pill" data-c="€">€</button><button class="pill" data-c="£">£</button><button class="pill" data-c="₽">₽</button></div>
+      <div class="pills splits" id="splits">
+        <button class="pill" data-s="100">Winner takes all</button><button class="pill" data-s="70,30">70 / 30</button><button class="pill" data-s="50,30,20">50 / 30 / 20</button>
+      </div>
+      <div class="state" id="state">Game on</div>
+    </div>
+    <div class="panel card">
+      <h3>Standings</h3>
+      <div class="sub">Players are listed in the order they were knocked out</div>
+      <ul class="stand" id="stand"></ul>
+    </div>
+  </div>
+
+  <div class="sec" id="hands"><h2><span class="num">04</span>Hand rankings</h2><span class="hint">From best to worst</span></div>
+  <div class="panel card">
+    <ol class="hands" id="handList"></ol>
+    <div class="keys"><span><kbd>Space</kbd>Start / pause</span><span><kbd>N</kbd>Next level</span><span><kbd>F</kbd>Full screen</span><span><kbd>M</kbd>Sound</span><span><kbd>T</kbd>Open timer</span></div>
+  </div>
+</main>
+
+<section class="timer-page" id="timer">
+  <div class="panel clock" id="clock">
+    <div class="clock-top">
+      <a class="back" href="#top">↑ Setup</a>
+      <div class="tools">
+        <button class="icon" id="soundBtn" title="Sound on/off (M)" aria-label="Turn sound on or off"></button>
+        <button class="icon" id="fsBtn" title="Full screen (F)" aria-label="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      </div>
+    </div>
+    <div class="meta"><span class="tag" id="tag">Low League</span><span class="lvl big" id="lvl">Level 1</span></div>
+    <div class="time" id="time">10:00</div>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="blinds"><span class="bl-k">Blinds</span><span id="blinds">1 / 2</span></div>
+    <div class="next" id="nextInfo"></div>
+    <div class="ctrls">
+      <button class="btn main" id="play">Start</button>
+      <button class="btn" id="nextBtn">Next level</button>
+      <button class="btn" id="reset">Reset</button>
+    </div>
+    <div class="timeset">
+      <div class="ts-group">
+        <span class="ts-k">Adjust</span>
+        <button class="pill" data-add="-60">−1 min</button>
+        <button class="pill" data-add="60">+1 min</button>
+      </div>
+      <div class="ts-group">
+        <span class="ts-k">Level length</span>
+        <div class="pills" id="lens"><button class="pill" data-len="5">5</button><button class="pill" data-len="8">8</button><button class="pill on" data-len="10">10</button><button class="pill" data-len="15">15</button><button class="pill" data-len="20">20</button></div>
+        <span class="ts-k">min</span>
+      </div>
+    </div>
+    <div class="clock-foot"><span>Players <b id="footAlive">5 / 5</b></span><span>Played <b id="elapsed">0:00</b></span></div>
+  </div>
+</section>
+
+<footer>
+  <span>Turbo Poker · Your game is saved on this device</span>
+  <button id="newGame">Start a new game</button>
+</footer>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="panel">
+    <div class="k">Time to switch</div>
+    <h3 id="modalTitle">Big League starts now</h3>
+    <p id="modalText">Finish this hand, then everyone multiplies their stack by 5, rounds up to the next 25 and swaps for 25s and 100s. Blinds start at <b>25 / 50</b>.</p>
+    <button class="btn main" id="goBig">Let's go</button>
+  </div>
+</div>
+
+<script>
+// Low League blinds (levels 1-5), played with 1s, 5s and 10s
+const LOW=[[1,2],[2,4],[3,6],[5,10],[10,20]];
+// Big League blinds (levels 6-10), keyed by the colour-up multiplier. All multiples of 25.
+const BIG={
+  1:[[25,50],[50,100],[75,150],[100,200],[150,300]],
+  2:[[25,50],[50,100],[75,150],[100,200],[200,400]],
+  3:[[25,50],[50,100],[100,200],[150,300],[250,500]],
+  4:[[50,100],[100,200],[150,300],[200,400],[400,800]],
+  5:[[25,50],[50,100],[100,200],[200,400],[300,600]]
+};
+const SETUP={5:{v:100,c:[5,5,7],at:3,latest:5},4:{v:120,c:[5,7,8],at:2,latest:5},3:{v:150,c:[5,9,10],at:2,latest:5},2:{v:200,c:[5,9,15],at:null,latest:4}};
+const D=[1,5,10],NAMES={1:'white',5:'red',10:'blue'};
+const PER_COLOUR=40; // chips of each colour in the set
+const HANDS=[
+  ['Royal flush','A K Q J 10, all the same suit','A♠ K♠ Q♠ J♠ 10♠'],
+  ['Straight flush','Five cards in a row, all the same suit','9♥ 8♥ 7♥ 6♥ 5♥'],
+  ['Four of a kind','Four cards of the same rank','K♣ K♦ K♥ K♠ 3♦','11110'],
+  ['Full house','Three of a kind plus a pair','Q♠ Q♥ Q♦ 7♣ 7♠'],
+  ['Flush','Any five cards of the same suit','A♦ J♦ 8♦ 6♦ 2♦'],
+  ['Straight','Five cards in a row, any suits','10♣ 9♦ 8♠ 7♥ 6♣'],
+  ['Three of a kind','Three cards of the same rank','7♠ 7♥ 7♦ K♣ 2♠','11100'],
+  ['Two pair','Two different pairs','J♥ J♣ 4♠ 4♦ A♥','11110'],
+  ['One pair','Two cards of the same rank','10♠ 10♥ K♦ 6♣ 3♠','11000'],
+  ['High card','Nothing else, so the highest card plays','A♣ Q♦ 9♠ 5♥ 3♣','10000']
+];
+const $=id=>document.getElementById(id);
+const KEY='turbo-poker-v2';
+
+let mult=5,LEN=600,full=600;
+let n=5,alive=5,lvl=0,rem=LEN,running=false,tick=null;
+let outs=[],buyin=10,cur='$',split=null,sound=true,played=0;
+
+const lv=i=>i<5?LOW[i]:BIG[mult][i-5];
+const big=i=>i>=5;
+const fmt=s=>`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+const fmtLong=s=>{const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h}h ${String(m).padStart(2,'0')}m`:`${m}:${String(s%60).padStart(2,'0')}`};
+const pending=()=>!big(lvl)&&SETUP[n].at&&alive<=SETUP[n].at;
+const switchNext=()=>!big(lvl)&&(pending()||lvl+1>=SETUP[n].latest);
+const chips=(d,q)=>{let s='';for(let i=0;i<Math.min(q,20);i++)s+=`<div class="chip c${d}">${d}</div>`;return s};
+const defSplit=k=>k<=3?'100':'70,30';
+const money=v=>`${cur}${v.toLocaleString(undefined,{maximumFractionDigits:2})}`;
+const ICON={
+  play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>',
+  pause:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>',
+  on:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>',
+  off:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>'
+};
+
+/* ---------- Save / load ---------- */
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify({n,alive,lvl,rem,full,LEN,mult,running,outs,buyin,cur,split,sound,played,at:Date.now()}))}catch(e){}
+}
+function load(){
+  try{
+    const s=JSON.parse(localStorage.getItem(KEY));if(!s||!SETUP[s.n])return false;
+    ({n,alive,lvl,rem,full,LEN,mult,outs,buyin,cur,split,sound,played}=s);
+    outs=Array.isArray(outs)?outs:[];
+    if(!BIG[mult])mult=5;
+    if(s.running){const gone=Math.floor((Date.now()-s.at)/1000);played+=Math.min(gone,rem);rem=Math.max(0,rem-gone);running=true}
+    return true;
+  }catch(e){return false}
+}
+
+/* ---------- Render ---------- */
+function render(){
+  const [sb,bb]=lv(lvl),s=SETUP[n],b0=lv(5).join(' / '),isBig=big(lvl);
+  const league=isBig?'Big League':'Low League',bl=`${sb} / ${bb}`,t=fmt(rem),pct=Math.max(0,100-rem/full*100)+'%';
+  // timer page
+  $('tag').textContent=league;$('tag').className='tag'+(isBig?' big':'');
+  $('blinds').textContent=bl;
+  $('time').textContent=t;$('time').classList.toggle('low',rem<=60);$('time').classList.toggle('crit',running&&rem<=10);
+  $('lvl').textContent=`Level ${lvl+1} of 10`;
+  $('bar').style.width=pct;
+  $('play').textContent=running?'Pause':'Start';
+  $('clock').classList.toggle('big-on',isBig);
+  $('nextInfo').innerHTML=switchNext()?`Up next: <b>Big League, ${b0}</b>`:lvl<9?`Up next: <b>${lv(lvl+1).join(' / ')}</b>`:'Final level. Play until there is a winner.';
+  $('footAlive').textContent=`${alive} / ${n}`;
+  $('elapsed').textContent=fmtLong(played);
+  // board
+  $('jumpTime').textContent=t;$('jumpTime').classList.toggle('low',rem<=60);
+  $('boardTag').textContent=league;$('boardTag').className='tag'+(isBig?' big':'');
+  $('boardLvl').textContent=`Level ${lvl+1} of 10`;
+  $('boardBlinds').textContent=bl;
+  $('thinBar').style.width=pct;
+  // top bar
+  $('liveTime').textContent=t;$('liveBlinds').textContent=bl;
+  $('live').classList.toggle('on',running);
+  $('miniPlay').innerHTML=running?ICON.pause:ICON.play;
+  $('miniPlay').setAttribute('aria-label',running?'Pause timer':'Start timer');
+  document.title=running?`${t} · ${bl} · Turbo Poker`:'Turbo Poker';
+  // players
+  $('alive').textContent=alive;$('aliveOf').textContent=`of ${n}`;
+  $('minus').disabled=alive<=1;$('plus').disabled=!outs.length;
+  const tr=$('trigger');
+  if(alive===1){tr.className='trigger done';tr.innerHTML='<b>We have a winner</b>Game over. Press Reset for a rematch.'}
+  else if(isBig){tr.className='trigger done';tr.innerHTML='<b>Big League live</b>Only 25s and 100s from here on.'}
+  else if(pending()){tr.className='trigger hot';tr.innerHTML='<b>Switch triggered</b>Move up when this level ends.'}
+  else{tr.className='trigger';tr.innerHTML=s.at?`<b>Switch rule</b>At ${s.at} players left, or after Level ${s.latest}.`:`<b>Switch rule</b>After Level ${s.latest} (${s.latest*LEN/60} min).`}
+  $('ladder').innerHTML=Array.from({length:10},(_,i)=>lv(i)).map((x,i)=>`<button class="step${big(i)?' p2':''}${i===5?' split':''}${i===lvl?' now':''}${i<lvl?' past':''}" data-i="${i}" aria-label="Level ${i+1}, blinds ${x[0]} / ${x[1]}"><div class="l">${big(i)?'BIG '+(i-4):'L'+(i+1)}</div><div class="b">${x[0]}/${x[1]}</div></button>`).join('');
+  $('modalText').innerHTML=`Finish this hand, then everyone ${mult>1?`multiplies their stack by ${mult}, `:''}rounds up to the next 25 and swaps for 25s and 100s. Blinds start at <b>${b0}</b>.`;
+  $('soundBtn').innerHTML=sound?ICON.on:ICON.off;$('soundBtn').classList.toggle('off',!sound);
+  renderPrizes();
+  save();
+}
+
+function renderStacks(){
+  const s=SETUP[n];
+  $('total').innerHTML=`${s.v}<small>chips</small>`;
+  $('piles').innerHTML=D.map((d,i)=>`<div class="chiprow"><span class="nm">${NAMES[d]}</span><div class="pile">${chips(d,s.c[i])}</div><div class="qty">×${s.c[i]}</div></div>`).join('');
+  const left=D.map((d,i)=>PER_COLOUR-s.c[i]*n);
+  $('bank').textContent='Left in the bank for change: '+D.map((d,i)=>`${left[i]} ${NAMES[d]}`).join(', ')+'.';
+  $('bank').classList.toggle('warn',left.some(x=>x<0));
+  document.querySelectorAll('#seg button').forEach(x=>x.classList.toggle('on',+x.dataset.n===n));
+}
+
+function colorUp(){
+  const old=Math.max(0,parseInt($('old').value)||0),nv=Math.ceil(old*mult/25)*25;
+  // At least 4 greens for small bets, the rest in 100s
+  let k=0;if(nv>0){k=Math.min(nv/25,4);while(k<nv/25&&(nv-25*k)%100)k++}
+  const parts=[[25,k],[100,(nv-25*k)/100]];
+  $('newStack').textContent=nv.toLocaleString();
+  $('payout').innerHTML=parts.map(([d,q])=>`<div><div class="q">${q} × ${d}</div><div class="pile">${chips(d,q)}</div></div>`).join('');
+  $('how').textContent=`Count your stack${mult>1?`, multiply by ${mult}`:''}, then round up to the next 25. Swap your chips for green 25s and black 100s.`;
+  document.querySelectorAll('#mult .pill').forEach(x=>x.classList.toggle('on',+x.dataset.m===mult));
+}
+
+function renderPrizes(){
+  const sp=(split||defSplit(n)).split(',').map(Number).slice(0,n-1||1);
+  const tot=sp.reduce((a,b)=>a+b,0),pool=Math.max(0,buyin)*n;
+  const amts=sp.map(p=>Math.floor(pool*p/tot*100)/100);
+  amts[0]=Math.round((amts[0]+pool-amts.reduce((a,b)=>a+b,0))*100)/100;
+  $('pool').textContent=money(pool);
+  document.querySelectorAll('#splits .pill').forEach(b=>{
+    b.classList.toggle('on',b.dataset.s===(split||defSplit(n)));
+    b.disabled=b.dataset.s.split(',').length>=n&&n>1&&b.dataset.s!=='100';b.style.opacity=b.disabled?.35:'';
+  });
+  document.querySelectorAll('#cur .pill').forEach(b=>b.classList.toggle('on',b.dataset.c===cur));
+  const paid=amts.length,st=$('state');
+  if(alive===1){st.className='state win';st.textContent=`🏆 Winner takes ${money(amts[0])}`}
+  else if(paid>1&&alive===paid+1){st.className='state bubble';st.textContent='Bubble: the next player out wins nothing'}
+  else if(paid>1&&alive<=paid){st.className='state itm';st.textContent='Everyone left wins a prize'}
+  else{st.className='state';st.textContent=`${alive} players left · ${paid} paid place${paid>1?'s':''}`}
+  const byPlace={};outs.forEach(o=>byPlace[o.place]=o);
+  let html='';
+  for(let p=1;p<=n;p++){
+    const o=byPlace[p],a=amts[p-1],win=p===1&&alive===1;
+    const who=win?'Winner':o?`Out at Level ${o.lvl}${o.at?' · '+fmtLong(o.at):''}`:'Still playing';
+    html+=`<li class="${a!=null?'paid':''}${o?' out':''}${win?' win':''}"><span class="pl">${p}${['st','nd','rd'][p-1]||'th'}</span><span class="who">${who}</span><span class="amt">${a!=null?money(a):'—'}</span></li>`;
+  }
+  $('stand').innerHTML=html;
+}
+
+function renderHands(){
+  $('handList').innerHTML=HANDS.map(([nm,d,c,m])=>`<li><span class="hn">${nm}<small>${d}</small></span><span class="cards">${c.split(' ').map((x,i)=>{const r=x.slice(0,-1),su=x.slice(-1);return `<span class="pc${'♥♦'.includes(su)?' r':''}${m&&m[i]==='0'?' dim':''}">${r}<span>${su}</span></span>`}).join('')}</span></li>`).join('');
+}
+
+/* ---------- Timer ---------- */
+function setLevel(i){
+  const prev=lvl;lvl=Math.max(0,Math.min(9,i));rem=full=LEN;
+  if(prev!==lvl){const c=$('clock');c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash')}
+  render();
+}
+function ended(){
+  if(switchNext()){stop();$('modal').classList.add('show');beep(3);return}
+  beep(1);setLevel(lvl<9?lvl+1:lvl);
+}
+// Count real elapsed time so the clock stays accurate when a phone throttles background tabs
+let last=0,acc=0,wake=null;
+function start(){
+  if(running&&tick)return;
+  running=true;last=Date.now();acc=0;clearInterval(tick);
+  tick=setInterval(()=>{const now=Date.now();acc+=now-last;last=now;
+    let changed=false;
+    while(acc>=1000&&running){acc-=1000;changed=true;played++;
+      if(--rem<=0){rem=0;ended();break}
+      if(rem===60)beep(2,660);
+    }
+    if(changed&&running)render()},250);
+  keepAwake();render();
+}
+function stop(){running=false;clearInterval(tick);tick=null;if(wake){wake.release().catch(()=>{});wake=null}render()}
+async function keepAwake(){try{if('wakeLock' in navigator&&!wake){wake=await navigator.wakeLock.request('screen');wake.addEventListener('release',()=>{wake=null})}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&running)keepAwake()});
+
+let ac;
+function beep(x,f=880){if(!sound)return;try{ac=ac||new AudioContext();if(ac.state==='suspended')ac.resume();for(let k=0;k<x;k++){const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+k*.35;o.frequency.value=f;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.25,t);g.gain.exponentialRampToValueAtTime(.001,t+.3);o.start(t);o.stop(t+.3)}}catch(e){}}
+
+function fullscreen(){
+  const el=$('timer');
+  if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document);return}
+  if(el.requestFullscreen)el.requestFullscreen().catch(()=>{});else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();
+  location.hash='#timer';
+}
+
+function newGame(){
+  stop();alive=n;outs=[];played=0;$('old').value=SETUP[n].v;
+  setLevel(0);colorUp();renderStacks();render();
+}
+
+/* ---------- Events ---------- */
+const syncLens=()=>document.querySelectorAll('#lens .pill').forEach(x=>x.classList.toggle('on',+x.dataset.len*60===LEN));
+$('mult').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;mult=+b.dataset.m;colorUp();render()};
+document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{rem=Math.max(1,rem+ +b.dataset.add);full=Math.max(full,rem);render()});
+$('lens').onclick=e=>{const b=e.target.closest('[data-len]');if(!b)return;
+  const used=full-rem;LEN=+b.dataset.len*60;full=LEN;rem=Math.max(1,LEN-used);syncLens();render()};
+$('seg').onclick=e=>{const b=e.target.closest('button');if(!b)return;n=+b.dataset.n;split=null;newGame()};
+$('play').onclick=()=>running?stop():start();
+$('miniPlay').onclick=()=>running?stop():start();
+$('nextBtn').onclick=()=>{rem=0;ended()};
+$('reset').onclick=()=>newGame();
+$('newGame').onclick=()=>{if(confirm('Start a new game? This resets the timer, levels and standings.'))newGame()};
+$('minus').onclick=()=>{if(alive>1){outs.push({place:alive,lvl:lvl+1,at:played});alive--;if(alive===1){stop();beep(3,1046)}render()}};
+$('plus').onclick=()=>{if(outs.length){outs.pop();alive++;render()}};
+$('ladder').onclick=e=>{const s=e.target.closest('.step');if(s)setLevel(+s.dataset.i)};
+$('goBig').onclick=()=>{$('modal').classList.remove('show');setLevel(5)};
+$('old').oninput=colorUp;
+$('buyin').oninput=()=>{buyin=Math.max(0,parseFloat($('buyin').value)||0);render()};
+$('cur').onclick=e=>{const b=e.target.closest('[data-c]');if(!b)return;cur=b.dataset.c;render()};
+$('splits').onclick=e=>{const b=e.target.closest('[data-s]');if(!b||b.disabled)return;split=b.dataset.s;render()};
+$('soundBtn').onclick=()=>{sound=!sound;render();if(sound)beep(1)};
+$('fsBtn').onclick=fullscreen;
+document.addEventListener('keydown',e=>{
+  if(e.target.matches('input,textarea')||(e.key===' '&&e.target.closest('button,a'))||e.metaKey||e.ctrlKey||e.altKey)return;
+  const k=e.key.toLowerCase();
+  if(k===' '){e.preventDefault();running?stop():start()}
+  else if(k==='n'){rem=0;ended()}
+  else if(k==='f')fullscreen();
+  else if(k==='m'){sound=!sound;render()}
+  else if(k==='t')location.hash='#timer';
+  else if(k==='escape'&&$('modal').classList.contains('show'))$('goBig').click();
+});
+
+/* ---------- Boot ---------- */
+const restored=load();
+$('buyin').value=buyin;
+$('old').value=SETUP[n].v;
+syncLens();renderHands();renderStacks();colorUp();
+if(restored&&running){running=false;if(rem<=0){rem=0;render();ended()}else start()}
+else render();
+</script>
+</body>
+</html>
