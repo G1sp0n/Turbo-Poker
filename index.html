@@ -103,7 +103,15 @@ h1 em{font-style:inherit;color:var(--y);display:block}
 .ctr button#minus{background:rgba(255,59,71,.14);border-color:rgba(255,59,71,.4);color:#FF8A92}
 .ctr button#minus:hover{background:rgba(255,59,71,.24)}
 .ctr button:disabled{opacity:.35;cursor:not-allowed}
-.board{display:flex;flex-direction:column;justify-content:center;gap:4px;text-decoration:none;color:#fff;position:relative;transition:background .15s}
+html[lang=ru] .ctr{gap:6px}
+html[lang=ru] .ctr button{padding:0 9px;gap:4px;font-size:12px;letter-spacing:.02em}
+html[lang=ru] .ctr button b{font-size:18px}
+.board{display:flex;flex-direction:column;justify-content:center;gap:4px;text-decoration:none;color:#fff;position:relative;transition:background .15s;isolation:isolate;overflow:hidden}
+/* Calm moving glow behind the timer */
+.board::after,.clock::after{content:"";position:absolute;inset:-40%;z-index:-1;pointer-events:none;opacity:1;
+  background:radial-gradient(35% 45% at 30% 40%,rgba(255,225,0,.16),transparent 70%),radial-gradient(30% 40% at 70% 60%,rgba(255,225,0,.11),transparent 70%);
+  animation:drift 16s ease-in-out infinite alternate}
+@keyframes drift{0%{transform:translate(-12%,-6%) rotate(0deg)}50%{transform:translate(8%,6%) rotate(8deg)}100%{transform:translate(14%,-4%) rotate(-6deg)}}
 .board:hover{background:rgba(255,225,0,.05)}
 .board-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .board-mid{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:6px;flex-wrap:wrap}
@@ -262,7 +270,7 @@ kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);
 /* ---------- Timer page ---------- */
 .timer-page{min-height:100vh;padding:20px 20px 60px;display:grid;place-items:center;background:var(--bg)}
 .timer-page:fullscreen{padding:20px}
-.clock{width:100%;max-width:1100px;min-height:calc(100vh - 120px);padding:56px 40px 40px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden}
+.clock{width:100%;max-width:1100px;min-height:calc(100vh - 120px);padding:56px 40px 40px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden;isolation:isolate}
 .timer-page:fullscreen .clock{min-height:calc(100vh - 40px);max-width:none}
 .clock::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(60% 50% at 50% 40%,rgba(255,225,0,.22),transparent 70%);transition:opacity .4s}
 .clock.big-on::before{opacity:1}
@@ -314,7 +322,7 @@ footer button:hover{color:var(--red)}
 .rise{animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
 .rise:nth-child(2){animation-delay:.06s}.rise:nth-child(3){animation-delay:.12s}.rise:nth-child(4){animation-delay:.18s}.rise:nth-child(5){animation-delay:.24s}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 
 /* ---------- Responsive ---------- */
 @media (max-width:900px){
@@ -906,7 +914,7 @@ const RU={
   'Turbo Poker, back to top':'Turbo Poker, наверх','Sections':'Разделы','Language':'Язык','Live game':'Текущая игра',
   'Short levels and fast blinds. You start in the Low League with small chips, then switch to the Big League and play until one player has every chip.':'Короткие уровни и быстрые блайнды. Вы начинаете в Малой лиге с мелкими фишками, потом переходите в Большую лигу и играете, пока у одного игрока не окажутся все фишки.',
   'How many players?':'Сколько игроков?',
-  'Players left':'Осталось игроков','Out':'Вылет','Undo':'Отмена','A player is out':'Игрок вылетел','Undo the last knockout':'Отменить последний вылет',
+  'Players left':'Осталось игроков','Out':'Вылет','Undo':'Назад','A player is out':'Игрок вылетел','Undo the last knockout':'Отменить последний вылет',
   'BLINDS':'БЛАЙНДЫ','Open the full-screen timer →':'Открыть таймер на весь экран →','Open the timer':'Открыть таймер',
   'Blind ladder':'Лестница блайндов','Tap a level to jump to it':'Нажмите на уровень, чтобы перейти к нему',
   'Starting stacks and the Big League switch':'Стартовые стеки и переход в Большую лигу',
