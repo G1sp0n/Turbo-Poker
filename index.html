@@ -107,11 +107,21 @@ html[lang=ru] .ctr{gap:6px}
 html[lang=ru] .ctr button{padding:0 9px;gap:4px;font-size:12px;letter-spacing:.02em}
 html[lang=ru] .ctr button b{font-size:18px}
 .board{display:flex;flex-direction:column;justify-content:center;gap:4px;text-decoration:none;color:#fff;position:relative;transition:background .15s;isolation:isolate;overflow:hidden}
-/* Calm moving glow behind the timer */
-.board::after,.clock::after{content:"";position:absolute;inset:-40%;z-index:-1;pointer-events:none;opacity:1;
+/* Calm moving glow behind the timer box on the main page */
+.board::after{content:"";position:absolute;inset:-40%;z-index:-1;pointer-events:none;opacity:1;
   background:radial-gradient(35% 45% at 30% 40%,rgba(255,225,0,.16),transparent 70%),radial-gradient(30% 40% at 70% 60%,rgba(255,225,0,.11),transparent 70%);
   animation:drift 16s ease-in-out infinite alternate}
-@keyframes drift{0%{transform:translate(-12%,-6%) rotate(0deg)}50%{transform:translate(8%,6%) rotate(8deg)}100%{transform:translate(14%,-4%) rotate(-6deg)}}
+/* Full-screen timer: glass rim light. The light starts where the blue band of each arc meets the panel edge (75% along the top and 25% down the right; mirrored bottom-left) and fades both ways along the edge, so the corner itself stays unlit. Its length slowly breathes. */
+.rim{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:1}
+.rim rect{fill:none}
+.panel.clock{border-color:rgba(255,255,255,.06)}
+/* Curved arcs from the arc version, behind the glass light. The ring only shows in two corners and its ends run off the edges. Clipped to the panel. */
+.sweep{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:-1}
+.sweep::before{content:"";position:absolute;inset:-20%;filter:blur(9px) saturate(1.25);animation:orbit 24s ease-in-out infinite alternate;
+  background:radial-gradient(50% 50% at 50% 50%,transparent 72%,#0B1E5B 75%,#1E7BE0 80%,#FFF3C4 85%,#FFC21A 89%,#FF7A1A 93%,#E8361C 97%,transparent 100%);
+  -webkit-mask-image:radial-gradient(60% 60% at 86% 14%,#000 35%,transparent 80%),radial-gradient(60% 60% at 14% 86%,#000 35%,transparent 80%);
+  mask-image:radial-gradient(60% 60% at 86% 14%,#000 35%,transparent 80%),radial-gradient(60% 60% at 14% 86%,#000 35%,transparent 80%)}
+@keyframes orbit{0%{transform:rotate(-4deg) scale(1)}100%{transform:rotate(4deg) scale(1.03)}}
 .board:hover{background:rgba(255,225,0,.05)}
 .board-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .board-mid{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:6px;flex-wrap:wrap}
@@ -270,10 +280,11 @@ kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);
 /* ---------- Timer page ---------- */
 .timer-page{min-height:100vh;padding:20px 20px 60px;display:grid;place-items:center;background:var(--bg)}
 .timer-page:fullscreen{padding:20px}
-.clock{width:100%;max-width:1100px;min-height:calc(100vh - 120px);padding:56px 40px 40px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden;isolation:isolate}
+.clock{width:100%;max-width:1100px;min-height:calc(100vh - 120px);padding:56px 40px 40px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:visible;isolation:isolate}
 .timer-page:fullscreen .clock{min-height:calc(100vh - 40px);max-width:none}
-.clock::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(60% 50% at 50% 40%,rgba(255,225,0,.22),transparent 70%);transition:opacity .4s}
-.clock.big-on::before{opacity:1}
+/* Centre glow: a very faint white in the Low League, warm yellow once the Big League starts */
+.clock::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(60% 50% at 50% 40%,rgba(255,255,255,.055),transparent 70%);transition:opacity .4s}
+.clock.big-on::before{background:radial-gradient(60% 50% at 50% 40%,rgba(255,225,0,.22),transparent 70%)}
 .clock.flash{animation:flash .7s ease-out}
 @keyframes flash{0%{box-shadow:0 0 0 0 rgba(255,225,0,0),inset 0 0 0 0 var(--y)}20%{box-shadow:0 0 80px 10px rgba(255,225,0,.35),inset 0 0 0 3px var(--y)}100%{box-shadow:0 0 0 0 rgba(255,225,0,0),inset 0 0 0 0 var(--y)}}
 .clock-top{position:absolute;top:18px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:center;gap:10px}
@@ -303,6 +314,10 @@ kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);
 .ts-k{font:700 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
 .clock-foot{position:absolute;bottom:16px;left:20px;right:20px;display:flex;justify-content:space-between;font:700 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
 .clock-foot b{color:#fff}
+/* Corner text on the timer panel stays white so it reads over the gradient */
+.clock .back,.clock-foot{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.55)}
+.clock .back:hover{color:var(--y)}
+.clock .icon.off{color:#C9C9D2}
 
 /* Modal */
 .modal{position:fixed;inset:0;display:none;place-items:center;z-index:40;padding:20px;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
@@ -314,9 +329,6 @@ kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);
 .modal p b{color:#fff}
 @keyframes pop{from{transform:scale(.85);opacity:0}}
 
-footer{max-width:1080px;margin:0 auto;padding:0 20px 40px;color:var(--mute);font-size:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
-footer button{background:none;border:0;color:var(--mute);font:700 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;text-decoration:underline;text-underline-offset:3px}
-footer button:hover{color:var(--red)}
 
 /* Entry animation */
 .rise{animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
@@ -398,7 +410,7 @@ footer button:hover{color:var(--red)}
   .blinds{font-size:8vw;flex-direction:row;gap:12px}
 }
 @media print{
-  .nav,.ctrls,.ctr,.modal,.back,.tools,.timeset,footer,.keys{display:none!important}
+  .nav,.ctrls,.ctr,.modal,.back,.tools,.timeset,.keys{display:none!important}
   .timer-page{min-height:auto;break-before:page}
   .clock{min-height:auto}
   body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -545,7 +557,7 @@ footer button:hover{color:var(--red)}
 </main>
 
 <section class="timer-page" id="timer">
-  <div class="panel clock" id="clock">
+  <div class="panel clock" id="clock"><div class="sweep" aria-hidden="true"></div><svg class="rim" aria-hidden="true"><defs><radialGradient id="rimN" cx=".75" cy="0" r=".44"><stop offset="0" stop-color="#1E7BE0"/><stop offset=".16" stop-color="#1E5BD8"/><stop offset=".38" stop-color="#0B1E5B"/><stop offset=".68" stop-color="#06102E" stop-opacity=".75"/><stop offset="1" stop-color="#03081A" stop-opacity="0"/><animate attributeName="r" values=".38;.5;.38" dur="14s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/></radialGradient><radialGradient id="rimE" cx="1" cy=".25" r=".44"><stop offset="0" stop-color="#1E7BE0"/><stop offset=".16" stop-color="#1E5BD8"/><stop offset=".38" stop-color="#0B1E5B"/><stop offset=".68" stop-color="#06102E" stop-opacity=".75"/><stop offset="1" stop-color="#03081A" stop-opacity="0"/><animate attributeName="r" values=".38;.5;.38" dur="14s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/></radialGradient><radialGradient id="rimS" cx=".25" cy="1" r=".44"><stop offset="0" stop-color="#1E7BE0"/><stop offset=".16" stop-color="#1E5BD8"/><stop offset=".38" stop-color="#0B1E5B"/><stop offset=".68" stop-color="#06102E" stop-opacity=".75"/><stop offset="1" stop-color="#03081A" stop-opacity="0"/><animate attributeName="r" values=".38;.5;.38" dur="14s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/></radialGradient><radialGradient id="rimW" cx="0" cy=".75" r=".44"><stop offset="0" stop-color="#1E7BE0"/><stop offset=".16" stop-color="#1E5BD8"/><stop offset=".38" stop-color="#0B1E5B"/><stop offset=".68" stop-color="#06102E" stop-opacity=".75"/><stop offset="1" stop-color="#03081A" stop-opacity="0"/><animate attributeName="r" values=".38;.5;.38" dur="14s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/></radialGradient><filter id="rimGlow" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="5"/></filter></defs><g filter="url(#rimGlow)" opacity=".6"><rect width="100%" height="100%" rx="18" stroke="url(#rimN)" stroke-width="6"/><rect width="100%" height="100%" rx="18" stroke="url(#rimE)" stroke-width="6"/><rect width="100%" height="100%" rx="18" stroke="url(#rimS)" stroke-width="6"/><rect width="100%" height="100%" rx="18" stroke="url(#rimW)" stroke-width="6"/></g><rect width="100%" height="100%" rx="18" stroke="url(#rimN)" stroke-width="1.6"/><rect width="100%" height="100%" rx="18" stroke="url(#rimE)" stroke-width="1.6"/><rect width="100%" height="100%" rx="18" stroke="url(#rimS)" stroke-width="1.6"/><rect width="100%" height="100%" rx="18" stroke="url(#rimW)" stroke-width="1.6"/></svg>
     <div class="clock-top">
       <a class="back" href="#top">↑ Setup</a>
       <div class="tools">
@@ -579,10 +591,6 @@ footer button:hover{color:var(--red)}
   </div>
 </section>
 
-<footer>
-  <span>Turbo Poker · Your game is saved on this device</span>
-  <button id="newGame">Start a new game</button>
-</footer>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="panel">
@@ -823,7 +831,6 @@ $('play').onclick=()=>running?stop():start();
 $('miniPlay').onclick=()=>running?stop():start();
 $('nextBtn').onclick=()=>{rem=0;ended()};
 $('reset').onclick=()=>newGame();
-$('newGame').onclick=()=>{if(confirm(L('Start a new game? This resets the timer, levels and standings.','Начать новую игру? Таймер, уровни и результаты будут сброшены.')))newGame()};
 $('minus').onclick=()=>{if(alive>1){outs.push({place:alive,lvl:lvl+1,at:played});alive--;if(alive===1){stop();beep(3,1046)}render()}};
 $('plus').onclick=()=>{if(outs.length){outs.pop();alive++;render()}};
 $('ladder').onclick=e=>{const s=e.target.closest('.step');if(s)setLevel(+s.dataset.i)};
