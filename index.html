@@ -9,6 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="Turbo Poker">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
 <meta name="description" content="Turbo Poker: blind timer, chip stacks, colour-up and payouts for a fast home game.">
 <title>Turbo Poker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -266,7 +268,7 @@ kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);
 .clock.big-on::before{background:radial-gradient(60% 50% at 50% 40%,rgba(255,225,0,.22),transparent 70%)}
 .clock.flash{animation:flash .7s ease-out}
 @keyframes flash{0%{box-shadow:0 0 0 0 rgba(255,225,0,0),inset 0 0 0 0 var(--y)}20%{box-shadow:0 0 80px 10px rgba(255,225,0,.35),inset 0 0 0 3px var(--y)}100%{box-shadow:0 0 0 0 rgba(255,225,0,0),inset 0 0 0 0 var(--y)}}
-.clock-top{position:absolute;top:18px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.clock-top{position:absolute;top:18px;left:20px;right:20px;display:flex;justify-content:flex-end;align-items:center;gap:10px}
 .back{font:700 12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);text-decoration:none;padding:8px 0}
 .back:hover{color:var(--y)}
 .tools{display:flex;gap:6px}
@@ -439,9 +441,10 @@ body.fs-lock .nav,body.fs-lock main{visibility:hidden}
 .timer-page.tp-phone .clock{max-width:none;min-height:0;height:100vh;height:100dvh;padding:44px 22px 30px;justify-content:center;border-radius:14px}
 .timer-page.fake.tp-phone .clock{height:100%}
 @media (orientation:portrait){.timer-page.fake.tp-phone .clock{height:100vw}}
-.timer-page.tp-phone .clock-top{top:8px;left:16px;right:16px}
+/* Kept clear of the rounded screen corners */
+.timer-page.tp-phone .clock-top{top:calc(16px + env(safe-area-inset-top));left:28px;right:calc(30px + env(safe-area-inset-right))}
 .timer-page.tp-phone .icon{width:36px;height:36px}
-.timer-page.tp-phone .back,.timer-page.tp-phone .clock-foot{display:none}
+.timer-page.tp-phone .clock-foot{display:none}
 .timer-page.tp-phone .meta{gap:8px}
 .timer-page.tp-phone .tag{font-size:10px;padding:4px 10px}
 .timer-page.tp-phone .lvl.big{font-size:11px}
@@ -586,7 +589,6 @@ body.fs-lock .nav,body.fs-lock main{visibility:hidden}
 <section class="timer-page" id="timer">
   <div class="panel clock" id="clock"><div class="sweep" aria-hidden="true"></div><svg class="rim" aria-hidden="true"><defs><radialGradient id="rimN" cx=".75" cy="0" r=".44"><stop offset="0" stop-color="#1E7BE0"/><stop offset=".16" stop-color="#1E5BD8"/><stop offset=".38" stop-color="#0B1E5B"/><stop offset=".68" stop-color="#06102E" stop-opacity=".75"/><stop offset="1" stop-color="#03081A" stop-opacity="0"/><animate attributeName="r" values=".38;.5;.38" dur="14s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/></radialGradient><radialGradient id="rimE" cx="1" cy=".25" r=".44"><stop offset="0" stop-color="#1E7BE0"/><stop offset=".16" stop-color="#1E5BD8"/><stop offset=".38" stop-color="#0B1E5B"/><stop offset=".68" stop-color="#06102E" stop-opacity=".75"/><stop offset="1" stop-color="#03081A" stop-opacity="0"/><animate attributeName="r" values=".38;.5;.38" dur="14s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/></radialGradient><radialGradient id="rimS" cx=".25" cy="1" r=".44"><stop offset="0" stop-color="#1E7BE0"/><stop offset=".16" stop-color="#1E5BD8"/><stop offset=".38" stop-color="#0B1E5B"/><stop offset=".68" stop-color="#06102E" stop-opacity=".75"/><stop offset="1" stop-color="#03081A" stop-opacity="0"/><animate attributeName="r" values=".38;.5;.38" dur="14s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/></radialGradient><radialGradient id="rimW" cx="0" cy=".75" r=".44"><stop offset="0" stop-color="#1E7BE0"/><stop offset=".16" stop-color="#1E5BD8"/><stop offset=".38" stop-color="#0B1E5B"/><stop offset=".68" stop-color="#06102E" stop-opacity=".75"/><stop offset="1" stop-color="#03081A" stop-opacity="0"/><animate attributeName="r" values=".38;.5;.38" dur="14s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/></radialGradient><filter id="rimGlow" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="5"/></filter></defs><g filter="url(#rimGlow)" opacity=".6"><rect width="100%" height="100%" rx="18" stroke="url(#rimN)" stroke-width="6"/><rect width="100%" height="100%" rx="18" stroke="url(#rimE)" stroke-width="6"/><rect width="100%" height="100%" rx="18" stroke="url(#rimS)" stroke-width="6"/><rect width="100%" height="100%" rx="18" stroke="url(#rimW)" stroke-width="6"/></g><rect width="100%" height="100%" rx="18" stroke="url(#rimN)" stroke-width="1.6"/><rect width="100%" height="100%" rx="18" stroke="url(#rimE)" stroke-width="1.6"/><rect width="100%" height="100%" rx="18" stroke="url(#rimS)" stroke-width="1.6"/><rect width="100%" height="100%" rx="18" stroke="url(#rimW)" stroke-width="1.6"/></svg>
     <div class="clock-top">
-      <a class="back" href="#top">↑ Setup</a>
       <div class="tools">
         <button class="icon" id="soundBtn" title="Sound on/off (M)" aria-label="Turn sound on or off"></button>
         <button class="icon" id="handsBtn" title="Show or hide hand rankings (H)" aria-label="Show or hide hand rankings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="6" width="10" height="14" rx="2"/><path d="M15 4.5l4.6 1.6a2 2 0 0 1 1.2 2.5L17 19"/><path d="M8 10.5l1.4 2L8 14.5l-1.4-2z" fill="currentColor"/></svg></button>
@@ -866,8 +868,6 @@ function fullscreen(){
   location.hash='#timer';
 }
 ["fullscreenchange","webkitfullscreenchange"].forEach(ev=>document.addEventListener(ev,fsClasses));
-// "↑ Setup" also leaves full screen
-document.querySelector(".clock .back").addEventListener("click",()=>{if(realFs()||fakeFs())exitFs()});
 
 function newGame(){
   stop();alive=n;outs=[];played=0;$('old').value=SETUP[n].v;
