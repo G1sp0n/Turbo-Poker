@@ -302,7 +302,13 @@ kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);
 /* Hearts in a dull red and diamonds in a dull orange (rank and suit only; every card keeps the same grey outline) */
 .mc.h{color:#B0565C}
 .mc.d{color:#BC7A44}
-@media (min-width:1200px){.tside{display:flex}.time{font-size:clamp(110px,17vw,260px)}}
+/* Only shown when the timer is in full-screen mode (and the screen is wide enough to fit them) */
+@media (min-width:1000px){
+  .timer-page:fullscreen .tside{display:flex}
+  .timer-page:fullscreen .time{font-size:clamp(110px,17vw,260px)}
+  .timer-page:-webkit-full-screen .tside{display:flex}
+  .timer-page:-webkit-full-screen .time{font-size:clamp(110px,17vw,260px)}
+}
 .rules-btn{display:inline-block;text-decoration:none;margin-top:18px}
 /* Corner text on the timer panel stays white so it reads over the gradient */
 .clock .back,.clock-foot{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.55)}
@@ -789,7 +795,7 @@ function placeSides(){
   $('handsL').style.left=(tr.left-c.left)/2+'px';
   $('handsR').style.left=(c.width+(tr.right-c.left))/2+'px';
 }
-addEventListener("resize",placeSides);document.addEventListener("fullscreenchange",()=>setTimeout(placeSides,60));
+addEventListener("resize",placeSides);["fullscreenchange","webkitfullscreenchange"].forEach(ev=>document.addEventListener(ev,()=>setTimeout(placeSides,60)));
 if(document.fonts)document.fonts.ready.then(placeSides);
 document.addEventListener('keydown',e=>{
   if(e.target.matches('input,textarea')||(e.key===' '&&e.target.closest('button,a'))||e.metaKey||e.ctrlKey||e.altKey)return;
