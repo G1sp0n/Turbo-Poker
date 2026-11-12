@@ -6,6 +6,9 @@
 <meta name="theme-color" content="#0C0C0E">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Turbo Poker">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
 <meta name="description" content="Turbo Poker: blind timer, chip stacks, colour-up and payouts for a fast home game.">
 <title>Turbo Poker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -297,8 +300,12 @@ kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);
 .tside li b{font:800 italic 19px/1.1 var(--display);text-transform:uppercase;letter-spacing:.03em;color:var(--mute)}
 /* Example hand as small outlined cards, in the same quiet grey */
 .mcards{display:flex;gap:3px}
-.mc{width:24px;height:33px;border:1.5px solid var(--mute);border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 11px/1 var(--mono);color:var(--mute)}
-.mc i{font-style:normal;font-size:12px;margin-top:2px}
+.mc{width:29px;height:40px;border:1.5px solid #fff;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 13px/1 var(--mono);color:#fff}
+.mc i{font-style:normal;font-size:14px;margin-top:2px}
+/* Button to show or hide the hand lists; only shown in full screen */
+#handsBtn{display:none}
+.timer-page:fullscreen #handsBtn,.timer-page:-webkit-full-screen #handsBtn,.timer-page.fake #handsBtn{display:grid}
+.timer-page.hands-off .tside{display:none!important}
 .mc.dim{opacity:.35}
 /* Hearts in a dull red and diamonds in a dull orange (rank and suit only; every card keeps the same grey outline) */
 .mc.h{color:#B0565C}
@@ -441,7 +448,14 @@ body.fs-lock{overflow:hidden}
 .timer-page.tp-phone .ctrls{display:flex;width:auto;gap:8px;margin-top:10px}
 .timer-page.tp-phone .ctrls .btn,.timer-page.tp-phone .ctrls .btn.main{font-size:15px;padding:10px 20px;min-width:0;grid-column:auto;flex:none}
 .timer-page.tp-phone .ctrls .btn.main{min-width:120px}
-.timer-page.tp-phone .timeset,.timer-page.tp-phone .tside{display:none!important}
+.timer-page.tp-phone .timeset{display:none!important}
+/* Hand lists on phones: smaller, sized to the short side of the screen */
+.timer-page.tp-phone .tside{display:flex;width:auto;gap:2.4vmin}
+.timer-page.tp-phone .tside li{gap:1.2vmin}
+.timer-page.tp-phone .tside li b{font-size:3.4vmin}
+.timer-page.tp-phone .mcards{gap:.8vmin}
+.timer-page.tp-phone .mc{width:6.4vmin;height:8.8vmin;font-size:2.8vmin;border-radius:1vmin;border-width:1px}
+.timer-page.tp-phone .mc i{font-size:3vmin;margin-top:.3vmin}
 .timer-page.tp-phone .clock-foot{bottom:8px;left:18px;right:18px;font-size:10px}
 </style>
 </head>
@@ -569,6 +583,7 @@ body.fs-lock{overflow:hidden}
       <a class="back" href="#top">↑ Setup</a>
       <div class="tools">
         <button class="icon" id="soundBtn" title="Sound on/off (M)" aria-label="Turn sound on or off"></button>
+        <button class="icon" id="handsBtn" title="Show or hide hand rankings (H)" aria-label="Show or hide hand rankings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="6" width="10" height="14" rx="2"/><path d="M15 4.5l4.6 1.6a2 2 0 0 1 1.2 2.5L17 19"/><path d="M8 10.5l1.4 2L8 14.5l-1.4-2z" fill="currentColor"/></svg></button>
         <button class="icon" id="fsBtn" title="Full screen (F)" aria-label="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
       </div>
     </div>
@@ -803,7 +818,17 @@ function fsClasses(){
   document.body.classList.toggle('fs-lock',fakeFs());
   setTimeout(placeSides,60);
 }
-function enterFake(){$('timer').classList.add('fake');fsClasses();location.hash='#timer'}
+function enterFake(){$('timer').classList.add('fake');fsClasses();location.hash='#timer';iosTip()}
+// iPhone Safari can't hide its own bars. Opening the site from the Home Screen can, so say so once.
+function iosTip(){
+  const ios=/iPhone|iPod/.test(navigator.userAgent),app=navigator.standalone||matchMedia('(display-mode: standalone)').matches;
+  if(!ios||app)return;try{if(localStorage.getItem('turbo-iostip'))return;localStorage.setItem('turbo-iostip','1')}catch(e){}
+  setTimeout(()=>alert(L('Tip: for a true full-screen timer on iPhone, tap Share, then "Add to Home Screen", and open Turbo Poker from your Home Screen.','Совет: чтобы таймер был на весь экран на iPhone, нажмите «Поделиться», затем «На экран "Домой"» и открывайте Turbo Poker с экрана «Домой».')),300);
+}
+// Show or hide the hand lists beside the timer (remembered on this device)
+function setSideHands(on){$('timer').classList.toggle('hands-off',!on);$('handsBtn').classList.toggle('off',!on);try{localStorage.setItem('turbo-sidehands',on?'1':'0')}catch(e){}setTimeout(placeSides,30)}
+$('handsBtn').onclick=()=>setSideHands($('timer').classList.contains('hands-off'));
+try{setSideHands(localStorage.getItem('turbo-sidehands')!=='0')}catch(e){}
 function exitFs(){
   if(realFs()){
     try{screen.orientation&&screen.orientation.unlock&&screen.orientation.unlock()}catch(e){}
@@ -851,10 +876,10 @@ $('soundBtn').onclick=()=>{sound=!sound;render();if(sound)beep(1)};
 $('fsBtn').onclick=fullscreen;
 // Centre each hand list halfway between the clock numbers and the panel edge
 function placeSides(){
-  const c=$("clock").getBoundingClientRect(),t=$("time"),r=document.createRange();
-  r.selectNodeContents(t);const tr=r.getBoundingClientRect();if(!c.width||!tr.width)return;
-  $('handsL').style.left=(tr.left-c.left)/2+'px';
-  $('handsR').style.left=(c.width+(tr.right-c.left))/2+'px';
+  // Uses layout offsets, so it also works when the phone timer is drawn sideways
+  const c=$("clock"),t=$("time"),w=c.clientWidth;if(!w||!t.offsetWidth)return;
+  $('handsL').style.left=t.offsetLeft/2+'px';
+  $('handsR').style.left=(w+t.offsetLeft+t.offsetWidth)/2+'px';
 }
 addEventListener("resize",placeSides);
 if(document.fonts)document.fonts.ready.then(placeSides);
@@ -864,6 +889,7 @@ document.addEventListener('keydown',e=>{
   if(k===' '){e.preventDefault();running?stop():start()}
   else if(k==='n'){rem=0;ended()}
   else if(k==='f')fullscreen();
+  else if(k==='h'&&(realFs()||fakeFs()))$('handsBtn').click();
   else if(k==='m'){sound=!sound;render()}
   else if(k==='t')location.hash='#timer';
   else if(k==='escape'&&$('modal').classList.contains('show'))$('goBig').click();
@@ -935,6 +961,7 @@ $('spClear').onclick=()=>{sp.forEach(p=>{p.amt='';p.fold=false});spWin={};spRows
 // Russian for the fixed text on the page. The parts that change during play use L() above.
 const RU={
   'Setup':'Настройка','Chips':'Фишки','Prizes':'Призы','Hands':'Комбинации','Pots':'Банки','Timer':'Таймер','Rules':'Правила',
+  'Show or hide hand rankings (H)':'Показать или скрыть комбинации (H)','Show or hide hand rankings':'Показать или скрыть комбинации',
   'Turbo Poker, back to top':'Turbo Poker, наверх','Sections':'Разделы','Language':'Язык','Live game':'Текущая игра',
   'Short levels and fast blinds. You start in the Low League with small chips, then switch to the Big League and play until one player has every chip.':'Короткие уровни и быстрые блайнды. Вы начинаете в Малой лиге с мелкими фишками, потом переходите в Большую лигу и играете, пока у одного игрока не окажутся все фишки.',
   'How many players?':'Сколько игроков?',
