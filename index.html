@@ -115,12 +115,12 @@ html[lang=ru] .ctr button b{font-size:18px}
   background:radial-gradient(35% 45% at 30% 40%,rgba(255,225,0,.16),transparent 70%),radial-gradient(30% 40% at 70% 60%,rgba(255,225,0,.11),transparent 70%);
   animation:drift 16s ease-in-out infinite alternate}
 /* Full-screen timer: glass rim light. The light starts where the blue band of each arc meets the panel edge (75% along the top and 25% down the right; mirrored bottom-left) and fades both ways along the edge, so the corner itself stays unlit. Its length slowly breathes. */
-.rim{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:1}
+.rim{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;will-change:transform;z-index:1}
 .rim rect{fill:none}
 .panel.clock{border-color:rgba(255,255,255,.06)}
 /* Curved arcs from the arc version, behind the glass light. The ring only shows in two corners and its ends run off the edges. Clipped to the panel. */
 .sweep{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:-1}
-.sweep::before{content:"";position:absolute;inset:-20%;filter:blur(9px) saturate(1.25);animation:orbit 13s ease-in-out infinite alternate;
+.sweep::before{content:"";position:absolute;will-change:transform;backface-visibility:hidden;inset:-20%;filter:blur(9px) saturate(1.25);animation:orbit 13s ease-in-out infinite alternate;
   background:radial-gradient(50% 50% at 50% 50%,transparent 72%,#0B1E5B 75%,#1E7BE0 80%,#FFF3C4 85%,#FFC21A 89%,#FF7A1A 93%,#E8361C 97%,transparent 100%);
   -webkit-mask-image:radial-gradient(60% 60% at 86% 14%,#000 35%,transparent 80%),radial-gradient(60% 60% at 14% 86%,#000 35%,transparent 80%);
   mask-image:radial-gradient(60% 60% at 86% 14%,#000 35%,transparent 80%),radial-gradient(60% 60% at 14% 86%,#000 35%,transparent 80%)}
@@ -300,16 +300,19 @@ kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);
 .tside li b{font:800 italic 19px/1.1 var(--display);text-transform:uppercase;letter-spacing:.03em;color:var(--mute)}
 /* Example hand as small outlined cards, in the same quiet grey */
 .mcards{display:flex;gap:3px}
-.mc{width:29px;height:40px;border:1.5px solid #fff;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 13px/1 var(--mono);color:#fff}
-.mc i{font-style:normal;font-size:14px;margin-top:2px}
+/* Example hands beside the timer: white cards like the main hand list, with a thin glass edge */
+.mc{width:34px;height:47px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font:800 15px/1 var(--mono);
+  background:linear-gradient(180deg,#FFFFFF,#ECECE6);color:#111;border:1px solid rgba(255,255,255,.55);
+  box-shadow:0 0 0 1px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(0,0,0,.08),0 3px 8px rgba(0,0,0,.4)}
+.mc i{font-style:normal;font-size:16px;margin-top:2px}
 /* Button to show or hide the hand lists; only shown in full screen */
 #handsBtn{display:none}
 .timer-page:fullscreen #handsBtn,.timer-page:-webkit-full-screen #handsBtn,.timer-page.fake #handsBtn{display:grid}
 .timer-page.hands-off .tside{display:none!important}
-.mc.dim{opacity:.35}
+.mc.dim{opacity:.4}
 /* Hearts in a dull red and diamonds in a dull orange (rank and suit only; every card keeps the same grey outline) */
-.mc.h{color:#B0565C}
-.mc.d{color:#BC7A44}
+.mc.h{color:#D7262E}
+.mc.d{color:#D9661F}
 /* Only shown when the timer is in full-screen mode (and the screen is wide enough to fit them) */
 @media (min-width:1000px){
   .timer-page:fullscreen .tside{display:flex}
@@ -424,6 +427,8 @@ kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);
 /* Fills the screen on phones that can't do real full screen (iPhone) */
 .timer-page.fake{position:fixed;inset:0;z-index:60;padding:0;min-height:0;background:var(--bg);display:block}
 body.fs-lock{overflow:hidden}
+/* While the phone timer covers the screen, stop drawing the page underneath */
+body.fs-lock .nav,body.fs-lock main{visibility:hidden}
 .timer-page.fake .clock{position:absolute;top:0;left:0;width:100%;height:100%;height:100dvh;max-width:none;min-height:0}
 /* Held upright: draw the timer sideways so it reads like landscape */
 @media (orientation:portrait){
@@ -436,12 +441,12 @@ body.fs-lock{overflow:hidden}
 @media (orientation:portrait){.timer-page.fake.tp-phone .clock{height:100vw}}
 .timer-page.tp-phone .clock-top{top:8px;left:16px;right:16px}
 .timer-page.tp-phone .icon{width:36px;height:36px}
-.timer-page.tp-phone .back{font-size:11px}
+.timer-page.tp-phone .back,.timer-page.tp-phone .clock-foot{display:none}
 .timer-page.tp-phone .meta{gap:8px}
 .timer-page.tp-phone .tag{font-size:10px;padding:4px 10px}
 .timer-page.tp-phone .lvl.big{font-size:11px}
 .timer-page.tp-phone .time{font-size:31vmin;margin-top:2px;line-height:.95}
-.timer-page.tp-phone .bar{width:min(62%,560px);height:5px;margin-top:6px}
+.timer-page.tp-phone .bar{width:min(36%,360px);height:5px;margin-top:6px}
 .timer-page.tp-phone .blinds{font-size:10.5vmin;margin-top:8px;flex-direction:row;align-items:baseline;gap:10px}
 .timer-page.tp-phone .bl-k{font-size:10px}
 .timer-page.tp-phone .next{font-size:12px;margin-top:4px}
@@ -450,13 +455,14 @@ body.fs-lock{overflow:hidden}
 .timer-page.tp-phone .ctrls .btn.main{min-width:120px}
 .timer-page.tp-phone .timeset{display:none!important}
 /* Hand lists on phones: smaller, sized to the short side of the screen */
-.timer-page.tp-phone .tside{display:flex;width:auto;gap:2.4vmin}
-.timer-page.tp-phone .tside li{gap:1.2vmin}
-.timer-page.tp-phone .tside li b{font-size:3.4vmin}
-.timer-page.tp-phone .mcards{gap:.8vmin}
-.timer-page.tp-phone .mc{width:6.4vmin;height:8.8vmin;font-size:2.8vmin;border-radius:1vmin;border-width:1px}
-.timer-page.tp-phone .mc i{font-size:3vmin;margin-top:.3vmin}
-.timer-page.tp-phone .clock-foot{bottom:8px;left:18px;right:18px;font-size:10px}
+.timer-page.tp-phone .tside{display:flex;width:auto;gap:2vmin}
+.timer-page.tp-phone .tside li{gap:.9vmin}
+.timer-page.tp-phone .tside li b{font-size:2.9vmin}
+.timer-page.tp-phone .mcards{gap:.6vmin}
+.timer-page.tp-phone .mc{width:5.2vmin;height:7.2vmin;font-size:2.4vmin;border-radius:.9vmin}
+.timer-page.tp-phone .mc i{font-size:2.5vmin;margin-top:.2vmin}
+/* Phones: drop the costly blur on the moving arcs; they still look soft */
+.timer-page.tp-phone .sweep::before{filter:saturate(1.25)}
 </style>
 </head>
 <body>
@@ -690,6 +696,18 @@ const ICON={
 };
 
 /* ---------- Save / load ---------- */
+// Light update for each tick of the clock: only the time-related bits, so phones don't have to redraw the whole page every second
+function tickRender(){
+  const t=fmt(rem),pct=Math.max(0,100-rem/full*100)+'%';
+  $('time').textContent=t;$('time').classList.toggle('low',rem<=60);$('time').classList.toggle('crit',running&&rem<=10);
+  $('bar').style.width=pct;$('thinBar').style.width=pct;
+  $('jumpTime').textContent=t;$('jumpTime').classList.toggle('low',rem<=60);
+  $('liveTime').textContent=t;$('elapsed').textContent=fmtLong(played);
+  document.title=`${t} · ${lv(lvl).join(' / ')} · Turbo Poker`;
+  if(played%5===0)save();
+}
+addEventListener('pagehide',()=>save());
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')save()});
 function save(){
   try{localStorage.setItem(KEY,JSON.stringify({n,alive,lvl,rem,full,LEN,mult,running,outs,sound,played,at:Date.now()}))}catch(e){}
 }
@@ -795,7 +813,7 @@ function start(){
       if(--rem<=0){rem=0;ended();break}
       if(rem===60)beep(2,660);
     }
-    if(changed&&running)render()},250);
+    if(changed&&running)tickRender()},250);
   keepAwake();render();
 }
 function stop(){running=false;clearInterval(tick);tick=null;if(wake){wake.release().catch(()=>{});wake=null}render()}
@@ -1034,6 +1052,8 @@ if(restored&&running){running=false;if(rem<=0){rem=0;render();ended()}else start
 else render();
 applyLang();
 placeSides();
+// Phones: the breathing edge light makes the browser redraw a blurred layer every frame, so keep it still there
+if(isPhone())document.querySelectorAll(".rim animate").forEach(a=>a.remove());
 </script>
 </body>
 </html>
