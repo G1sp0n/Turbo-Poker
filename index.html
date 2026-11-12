@@ -412,6 +412,37 @@ kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);
   .clock{min-height:auto}
   body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+/* ---------- Phone full screen ---------- */
+/* Fills the screen on phones that can't do real full screen (iPhone) */
+.timer-page.fake{position:fixed;inset:0;z-index:60;padding:0;min-height:0;background:var(--bg);display:block}
+body.fs-lock{overflow:hidden}
+.timer-page.fake .clock{position:absolute;top:0;left:0;width:100%;height:100%;height:100dvh;max-width:none;min-height:0}
+/* Held upright: draw the timer sideways so it reads like landscape */
+@media (orientation:portrait){
+  .timer-page.fake .clock{top:50%;left:50%;width:100vh;width:100dvh;height:100vw;transform:translate(-50%,-50%) rotate(90deg)}
+}
+/* Landscape layout for the timer on phones. Sizes use vmin (the short side), so they match whether turned or drawn sideways. */
+.timer-page.tp-phone{padding:0}
+.timer-page.tp-phone .clock{max-width:none;min-height:0;height:100vh;height:100dvh;padding:44px 22px 30px;justify-content:center;border-radius:14px}
+.timer-page.fake.tp-phone .clock{height:100%}
+@media (orientation:portrait){.timer-page.fake.tp-phone .clock{height:100vw}}
+.timer-page.tp-phone .clock-top{top:8px;left:16px;right:16px}
+.timer-page.tp-phone .icon{width:36px;height:36px}
+.timer-page.tp-phone .back{font-size:11px}
+.timer-page.tp-phone .meta{gap:8px}
+.timer-page.tp-phone .tag{font-size:10px;padding:4px 10px}
+.timer-page.tp-phone .lvl.big{font-size:11px}
+.timer-page.tp-phone .time{font-size:31vmin;margin-top:2px;line-height:.95}
+.timer-page.tp-phone .bar{width:min(62%,560px);height:5px;margin-top:6px}
+.timer-page.tp-phone .blinds{font-size:10.5vmin;margin-top:8px;flex-direction:row;align-items:baseline;gap:10px}
+.timer-page.tp-phone .bl-k{font-size:10px}
+.timer-page.tp-phone .next{font-size:12px;margin-top:4px}
+.timer-page.tp-phone .ctrls{display:flex;width:auto;gap:8px;margin-top:10px}
+.timer-page.tp-phone .ctrls .btn,.timer-page.tp-phone .ctrls .btn.main{font-size:15px;padding:10px 20px;min-width:0;grid-column:auto;flex:none}
+.timer-page.tp-phone .ctrls .btn.main{min-width:120px}
+.timer-page.tp-phone .timeset,.timer-page.tp-phone .tside{display:none!important}
+.timer-page.tp-phone .clock-foot{bottom:8px;left:18px;right:18px;font-size:10px}
 </style>
 </head>
 <body>
@@ -759,12 +790,41 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 let ac;
 function beep(x,f=880){if(!sound)return;try{ac=ac||new AudioContext();if(ac.state==='suspended')ac.resume();for(let k=0;k<x;k++){const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+k*.35;o.frequency.value=f;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.25,t);g.gain.exponentialRampToValueAtTime(.001,t+.3);o.start(t);o.stop(t+.3)}}catch(e){}}
 
+/* ---------- Full screen ----------
+   Computers and Android: real full screen. On phones it also asks to turn the screen sideways.
+   iPhone Safari can't make a page full screen, so there the timer fills the screen itself,
+   and if the phone is held upright the timer is drawn sideways (turn the phone to read it). */
+const isPhone=()=>matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<=600;
+const realFs=()=>document.fullscreenElement||document.webkitFullscreenElement;
+const fakeFs=()=>$('timer').classList.contains('fake');
+function fsClasses(){
+  const on=!!realFs()||fakeFs();
+  $('timer').classList.toggle('tp-phone',on&&isPhone());
+  document.body.classList.toggle('fs-lock',fakeFs());
+  setTimeout(placeSides,60);
+}
+function enterFake(){$('timer').classList.add('fake');fsClasses();location.hash='#timer'}
+function exitFs(){
+  if(realFs()){
+    try{screen.orientation&&screen.orientation.unlock&&screen.orientation.unlock()}catch(e){}
+    (document.exitFullscreen||document.webkitExitFullscreen).call(document);
+  }
+  if(fakeFs()){$('timer').classList.remove('fake');fsClasses()}
+}
 function fullscreen(){
-  const el=$('timer');
-  if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document);return}
-  if(el.requestFullscreen)el.requestFullscreen().catch(()=>{});else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();
+  if(realFs()||fakeFs()){exitFs();return}
+  const el=$('timer'),req=el.requestFullscreen||el.webkitRequestFullscreen;
+  if(!req){enterFake();return}
+  try{
+    const p=req.call(el,{navigationUI:'hide'});
+    const locked=()=>{if(isPhone()&&screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(()=>{})};
+    if(p&&p.then)p.then(locked).catch(enterFake);else locked();
+  }catch(e){enterFake()}
   location.hash='#timer';
 }
+["fullscreenchange","webkitfullscreenchange"].forEach(ev=>document.addEventListener(ev,fsClasses));
+// "↑ Setup" also leaves full screen
+document.querySelector(".clock .back").addEventListener("click",()=>{if(realFs()||fakeFs())exitFs()});
 
 function newGame(){
   stop();alive=n;outs=[];played=0;$('old').value=SETUP[n].v;
@@ -796,7 +856,7 @@ function placeSides(){
   $('handsL').style.left=(tr.left-c.left)/2+'px';
   $('handsR').style.left=(c.width+(tr.right-c.left))/2+'px';
 }
-addEventListener("resize",placeSides);["fullscreenchange","webkitfullscreenchange"].forEach(ev=>document.addEventListener(ev,()=>setTimeout(placeSides,60)));
+addEventListener("resize",placeSides);
 if(document.fonts)document.fonts.ready.then(placeSides);
 document.addEventListener('keydown',e=>{
   if(e.target.matches('input,textarea')||(e.key===' '&&e.target.closest('button,a'))||e.metaKey||e.ctrlKey||e.altKey)return;
