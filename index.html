@@ -117,11 +117,12 @@ html[lang=ru] .ctr button b{font-size:18px}
 .panel.clock{border-color:rgba(255,255,255,.06)}
 /* Curved arcs from the arc version, behind the glass light. The ring only shows in two corners and its ends run off the edges. Clipped to the panel. */
 .sweep{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:-1}
-.sweep::before{content:"";position:absolute;inset:-20%;filter:blur(9px) saturate(1.25);animation:orbit 24s ease-in-out infinite alternate;
+.sweep::before{content:"";position:absolute;inset:-20%;filter:blur(9px) saturate(1.25);animation:orbit 13s ease-in-out infinite alternate;
   background:radial-gradient(50% 50% at 50% 50%,transparent 72%,#0B1E5B 75%,#1E7BE0 80%,#FFF3C4 85%,#FFC21A 89%,#FF7A1A 93%,#E8361C 97%,transparent 100%);
   -webkit-mask-image:radial-gradient(60% 60% at 86% 14%,#000 35%,transparent 80%),radial-gradient(60% 60% at 14% 86%,#000 35%,transparent 80%);
   mask-image:radial-gradient(60% 60% at 86% 14%,#000 35%,transparent 80%),radial-gradient(60% 60% at 14% 86%,#000 35%,transparent 80%)}
-@keyframes orbit{0%{transform:rotate(-4deg) scale(1)}100%{transform:rotate(4deg) scale(1.03)}}
+/* Rocks and gently warps: the ring stretches a little one way, then the other */
+@keyframes orbit{0%{transform:rotate(-5deg) scale(1,1) skew(0deg,0deg)}35%{transform:rotate(-1deg) scale(1.045,.975) skew(1.6deg,-.8deg)}70%{transform:rotate(3deg) scale(.975,1.04) skew(-1.4deg,1deg)}100%{transform:rotate(5deg) scale(1.03,1.01) skew(.6deg,-.4deg)}}
 .board:hover{background:rgba(255,225,0,.05)}
 .board-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .board-mid{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:6px;flex-wrap:wrap}

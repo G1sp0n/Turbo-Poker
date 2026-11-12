@@ -135,7 +135,13 @@ html[lang=ru] .act::after{content:"Подробнее →"}
 .act:focus-visible b,.act:focus-visible span,.act:focus-visible em{color:var(--ink)}
 .omodal{position:fixed;inset:0;z-index:50;display:none;place-items:center;padding:20px;background:rgba(6,6,8,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .omodal.show{display:grid}
-.ocard{width:100%;max-width:540px;max-height:calc(100vh - 40px);overflow:auto;padding:32px 28px 26px;border:1.5px solid var(--y);animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
+.ocard{width:100%;max-width:540px;padding:32px 28px 26px;border:1.5px solid var(--y);animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
+/* Every card is the same size on every screen. The title and Got it button stay put; only the rules scroll. */
+.ocard{height:min(640px,calc(100vh - 40px));height:min(640px,calc(100svh - 40px));display:flex;flex-direction:column;overflow:hidden}
+#oBody{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;margin-right:-8px;padding-right:8px;
+  -webkit-mask-image:linear-gradient(#000 calc(100% - 28px),transparent);mask-image:linear-gradient(#000 calc(100% - 28px),transparent)}
+#oBody .osec:last-child{padding-bottom:22px}
+.ocard .btn{flex:none;margin-top:14px;width:100%}
 /* Plain yellow outline, the same thickness all round */
 .ocard h3{font:900 italic 52px/.92 var(--display);text-transform:uppercase;color:var(--y);margin-top:6px}
 .ocard .olede{color:#DADAE2;font-size:16px;line-height:1.5;margin-top:10px}
@@ -147,9 +153,10 @@ html[lang=ru] .act::after{content:"Подробнее →"}
 .osec li b{color:#fff}
 .oclose{position:absolute;top:16px;right:16px;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--p3);color:#fff;font:700 20px/1 var(--body);display:grid;place-items:center}
 .oclose:hover{background:#3A3A44}
-.ocard .btn{margin-top:22px;width:100%}
 @keyframes pop{from{transform:scale(.9);opacity:0}}
-@media (max-width:600px){.ocard{padding:28px 20px 20px}.ocard h3{font-size:42px}}
+@media (max-width:600px){
+  .ocard{padding:28px 20px 20px}.ocard h3{font-size:42px}
+}
 
 /* Hand rankings */
 .hands{list-style:none;counter-reset:h;margin-top:6px}
@@ -447,7 +454,7 @@ const RU={
   'When it\'s your turn':'Когда ваш ход','You get one of these each time the action reaches you':'Каждый раз, когда очередь доходит до вас, выберите одно из этого',
   'Your options':'Что можно сделать','What you can do depends on whether anyone has bet yet in this round.':'Что можно сделать, зависит от того, ставил ли кто-нибудь в этом круге.',
   'Check':'Чек','Pass without betting. The turn moves on to the next player.':'Пропустить ход без ставки. Ход переходит к следующему игроку.','Only if nobody has bet':'Только если ставок ещё не было',
-  'Bet':'Ставка','Put chips in first. Everyone after you has to call, raise or fold.':'Поставить фишки первым. Всем после вас нужно уравнять, поднять или сбросить.','Only if nobody has bet · at least the big blind':'Только если ставок не было · не меньше большого блайнда',
+  'Bet':'Бет','Put chips in first. Everyone after you has to call, raise or fold.':'Поставить фишки первым. Всем после вас нужно уравнять, поднять или сбросить.','Only if nobody has bet · at least the big blind':'Только если ставок не было · не меньше большого блайнда',
   'Call':'Колл','Match the current bet to stay in the hand.':'Уравнять текущую ставку, чтобы остаться в игре.','After someone bets':'После чьей-то ставки',
   'Raise':'Рейз','Make the bet bigger. Everyone has to respond to the new amount.':'Увеличить ставку. Всем нужно ответить на новую сумму.','After someone bets · see min raise':'После чьей-то ставки · см. минимальный рейз',
   'Fold':'Пас','Give up your cards and anything you\'ve already put in this hand.':'Сбросить карты и отказаться от всего, что уже поставлено в этой раздаче.','Any time it\'s your turn':'В любой момент, когда ваш ход',
@@ -527,67 +534,109 @@ function applyLang(){
 /* ---------- Option details ---------- */
 // Each option: title, one-line summary, then sections of bullet points. [English, Russian]
 const OPTS={
-  check:{t:['Check','Чек'],l:['Pass the turn without putting in any chips.','Пропустить ход, не ставя фишек.'],s:[
+  check:{t:['Check','Чек'],l:['Pass the turn without putting in any chips. You stay in the hand.','Пропустить ход, не ставя фишек. Вы остаётесь в раздаче.'],s:[
     [['When you can','Когда можно'],[
       ['Only when <b>nobody has bet yet</b> in this betting round.','Только если в этом круге <b>ещё никто не ставил</b>.'],
-      ['Before the flop, only the <b>big blind</b> can check, and only if nobody raised.','До флопа чекнуть может только <b>большой блайнд</b>, и только если никто не поднимал.']]],
+      ['Before the flop, only the <b>big blind</b> can check, and only if nobody raised. Everyone else has to call, raise or fold.','До флопа чекнуть может только <b>большой блайнд</b>, и только если никто не поднимал. Остальные должны уравнять, поднять или сбросить.'],
+      ['Once someone bets, checking is gone for everyone after them.','Как только кто-то поставил, чек для всех после него больше недоступен.']]],
     [['How much','Сколько'],[
       ['Nothing. You put in no chips.','Ничего. Фишки не ставятся.']]],
-    [['Good to know','Полезно знать'],[
+    [['What happens next','Что дальше'],[
       ['If everyone checks, the round ends and the next card is dealt.','Если все чекнули, круг заканчивается и открывается следующая карта.'],
-      ['Checking doesn\'t take you out. If someone bets after you, you still get to call, raise or fold. Checking and then raising (a <b>check-raise</b>) is allowed.','Чек не выводит вас из игры. Если после вас кто-то поставит, вы сможете уравнять, поднять или сбросить. Чек, а потом рейз (<b>чек-рейз</b>) разрешён.'],
-      ['Tap the table or say "check" so everyone knows.','Постучите по столу или скажите «чек», чтобы все поняли.']]]]},
-  bet:{t:['Bet','Ставка'],l:['Be the first to put chips in this round.','Первым поставить фишки в этом круге.'],s:[
+      ['If everyone checks on the river, it\'s showdown. The first player left of the button shows first.','Если все чекнули на ривере — вскрытие. Первым открывается игрок слева от дилера.'],
+      ['If someone bets after you, the action comes back to you and you can call, raise or fold.','Если после вас кто-то поставит, ход вернётся к вам, и вы сможете уравнять, поднять или сбросить.']]],
+    [['How to do it','Как сделать'],[
+      ['Tap the table twice or say "check" clearly.','Дважды постучите по столу или чётко скажите «чек».'],
+      ['Wait for your turn. Checking early tells everyone you\'re not betting.','Дождитесь своей очереди. Ранний чек подсказывает всем, что вы не будете ставить.']]],
+    [['Good to know','Полезно знать'],[
+      ['<b>Check-raise</b> is allowed: check, then raise after someone bets.','<b>Чек-рейз</b> разрешён: сначала чек, потом рейз после чьей-то ставки.'],
+      ['Checking keeps the pot small and lets you see the next card for free.','Чек не раздувает банк и даёт бесплатно посмотреть следующую карту.'],
+      ['If you can check, never fold. Folding when checking is free just throws the hand away.','Если можно чекнуть, не сбрасывайте карты. Пас, когда чек бесплатный, — просто выброшенная рука.']]]]},
+  bet:{t:['Bet','Бет'],l:['Be the first to put chips in this round. Everyone after you has to answer.','Первым поставить фишки в этом круге. Всем после вас нужно ответить.'],s:[
     [['When you can','Когда можно'],[
-      ['When <b>nobody has bet yet</b> in this round.','Когда в этом круге <b>ещё никто не ставил</b>.'],
-      ['Before the flop the blinds already count as bets, so there you call or raise instead.','До флопа блайнды уже считаются ставками, поэтому там вы уравниваете или поднимаете.']]],
+      ['When <b>nobody has bet yet</b> in this round: on the flop, turn or river.','Когда в этом круге <b>ещё никто не ставил</b>: на флопе, тёрне или ривере.'],
+      ['Before the flop the blinds already count as bets, so there you call or raise.','До флопа блайнды уже считаются ставками, поэтому там вы уравниваете или поднимаете.']]],
     [['How much','Сколько'],[
       ['At least the <b>big blind</b>.','Не меньше <b>большого блайнда</b>.'],
       ['At most every chip in front of you. There\'s no upper limit.','Не больше всех ваших фишек. Верхнего предела нет.'],
       ['If you have less than the big blind, you can still go all-in for what you have.','Если у вас меньше большого блайнда, можно пойти ва-банк на всё, что есть.']]],
+    [['How to do it','Как сделать'],[
+      ['Say "bet" and the amount, or push the chips forward in <b>one move</b>.','Скажите «бет» и сумму или выдвиньте фишки <b>одним движением</b>.'],
+      ['What you say counts. "Bet 200" means 200, even if you then put in a different amount.','Сказанное считается. «Бет 200» — это 200, даже если положили другую сумму.'],
+      ['Going back to your stack for more (a <b>string bet</b>) isn\'t allowed. Only the first amount counts.','Возвращаться к стеку за добавкой (<b>ставка в несколько приёмов</b>) нельзя. Считается только первая сумма.'],
+      ['If nobody has bet and you silently put in one big chip, the bet is that chip\'s full value.','Если ставок не было и вы молча положили одну крупную фишку, ставка равна её полной стоимости.']]],
+    [['What happens next','Что дальше'],[
+      ['Everyone after you has to call, raise or fold.','Всем после вас нужно уравнять, поднять или сбросить.'],
+      ['If everyone folds, you win the pot straight away and don\'t have to show your cards.','Если все сбросили, вы сразу забираете банк и можете не показывать карты.']]],
     [['Good to know','Полезно знать'],[
-      ['Say "bet" and the amount, or push the chips in one move.','Скажите «ставка» и сумму или выдвиньте фишки одним движением.'],
-      ['Going back to your stack for more chips (a <b>string bet</b>) isn\'t allowed. Only the first amount counts.','Возвращаться к стеку за добавкой (<b>ставка в несколько приёмов</b>) нельзя. Считается только первая сумма.'],
-      ['Everyone after you has to call, raise or fold.','Всем после вас нужно уравнять, поднять или сбросить.']]]]},
+      ['Common sizes are half the pot to the full pot.','Обычный размер — от половины банка до полного банка.'],
+      ['A tiny bet gives others a cheap look at the next card.','Маленький бет даёт другим дёшево посмотреть следующую карту.']]]]},
   call:{t:['Call','Колл'],l:['Match the biggest bet so far to stay in the hand.','Уравнять самую большую ставку, чтобы остаться в игре.'],s:[
     [['When you can','Когда можно'],[
-      ['When someone has <b>bet or raised</b> in this round.','Когда в этом круге кто-то <b>поставил или поднял</b>.']]],
+      ['When someone has <b>bet or raised</b> in this round.','Когда в этом круге кто-то <b>поставил или поднял</b>.'],
+      ['Before the flop, calling just the big blind is called a <b>limp</b>.','До флопа уравнять только большой блайнд называется <b>лимп</b>.']]],
     [['How much','Сколько'],[
       ['Exactly enough to match the <b>biggest bet</b> so far.','Ровно столько, чтобы сравняться с <b>самой большой ставкой</b>.'],
-      ['If you already put chips in this round, like a blind, you only add the difference. Blinds 25/50, raise to 150: the small blind adds 125.','Если вы уже ставили в этом круге, например блайнд, доставьте только разницу. Блайнды 25/50, рейз до 150: малый блайнд доставляет 125.']]],
+      ['If you already put chips in this round, like a blind or an earlier bet, you only add the difference.','Если вы уже ставили в этом круге — блайнд или раньше — доставьте только разницу.'],
+      ['Example: blinds 25/50, someone raises to 150. The small blind adds 125, the big blind adds 100.','Пример: блайнды 25/50, кто-то поднял до 150. Малый блайнд доставляет 125, большой — 100.']]],
+    [['Not enough chips?','Не хватает фишек?'],[
+      ['You can call <b>all-in</b> for less. You stay in the hand to the end.','Можно уравнять <b>ва-банк</b> на меньшую сумму. Вы остаётесь в раздаче до конца.'],
+      ['You can then only win that much from each player. The rest goes to a <b>side pot</b> between the others.','Тогда вы выигрываете у каждого не больше этого. Остальное идёт в <b>побочный банк</b> между другими.']]],
+    [['How to do it','Как сделать'],[
+      ['Say "call", or put in the exact amount.','Скажите «колл» или положите точную сумму.'],
+      ['Putting in a single bigger chip without saying anything counts as a call. You get change back.','Если молча положить одну крупную фишку, это колл. Сдачу вам вернут.']]],
     [['Good to know','Полезно знать'],[
-      ['Putting in a single bigger chip without saying anything counts as a call.','Если молча положить одну крупную фишку, это колл.'],
-      ['If you don\'t have enough, you can call all-in for less. You can then only win that much from each player, and the rest goes to a <b>side pot</b>.','Если фишек не хватает, можно уравнять ва-банк на меньшую сумму. Тогда вы выигрываете у каждого не больше этого, а остальное идёт в <b>побочный банк</b>.']]]]},
+      ['A call doesn\'t reopen the betting. If everyone has called, the round is over.','Колл не открывает ставки заново. Если все уравняли, круг окончен.'],
+      ['If you call on the river, the bettor shows first. If you\'re beaten, you can throw your cards away without showing.','Если вы уравняли на ривере, первым открывается тот, кто ставил. Если вы проиграли, можно сбросить карты, не показывая.']]]]},
   raise:{t:['Raise','Рейз'],l:['Make the bet bigger. Everyone has to answer the new amount.','Увеличить ставку. Всем нужно ответить на новую сумму.'],s:[
     [['When you can','Когда можно'],[
       ['When someone has <b>already bet</b> in this round and it\'s your turn.','Когда в этом круге <b>уже есть ставка</b> и сейчас ваш ход.'],
       ['Before the flop the big blind counts as a bet, so the first player can raise straight away.','До флопа большой блайнд считается ставкой, так что первый игрок может сразу поднять.'],
-      ['If you already acted and the only thing since is a <b>short all-in</b> (less than a full raise), you can\'t raise again. Only call or fold.','Если вы уже сходили, а после было только <b>неполное ва-банк</b> (меньше полного рейза), поднять снова нельзя. Только уравнять или сбросить.']]],
+      ['<b>Exception:</b> if you already acted and the only thing since is a short all-in (less than a full raise), you can\'t raise again. Only call or fold.','<b>Исключение:</b> если вы уже сходили, а после было только неполное ва-банк (меньше полного рейза), поднять снова нельзя. Только уравнять или сбросить.']]],
     [['How much','Сколько'],[
-      ['The raise must be at least as big as the <b>last bet or raise</b>.','Рейз должен быть не меньше <b>предыдущей ставки или рейза</b>.'],
-      ['Example: blinds 25/50, someone raises to 150 (+100). The next raise must be to at least <b>250</b>.','Пример: блайнды 25/50, кто-то поднял до 150 (+100). Следующий рейз — минимум до <b>250</b>.'],
+      ['Your raise must be at least as big as the <b>last bet or raise</b>.','Рейз должен быть не меньше <b>предыдущей ставки или рейза</b>.'],
+      ['Example: blinds 25/50. Raise to 150 (+100). The next raise must be to at least <b>250</b> (+100), the one after that to at least 350.','Пример: блайнды 25/50. Рейз до 150 (+100). Следующий — минимум до <b>250</b> (+100), потом минимум до 350.'],
+      ['If a player raises bigger, say to 400 (+250), the next raise must add at least 250.','Если кто-то поднял сильнее, например до 400 (+250), следующий рейз должен добавить минимум 250.'],
       ['At most every chip in front of you.','Не больше всех ваших фишек.']]],
+    [['How to do it','Как сделать'],[
+      ['Say "raise" <b>before</b> you put chips in, or push the full amount in one move.','Скажите «рейз» <b>до того</b>, как ставите фишки, или выдвиньте всю сумму сразу.'],
+      ['Say the total: "raise to 300" means your bet is 300 in all.','Называйте итог: «рейз до 300» значит, что всего ваша ставка — 300.'],
+      ['Going back to your stack for more, or one big chip without a word, only counts as a call.','Возврат к стеку за добавкой или одна крупная фишка без слов считаются только коллом.']]],
+    [['What happens next','Что дальше'],[
+      ['A raise reopens the betting: everyone after you has to call, raise again or fold.','После рейза ставки открываются снова: всем после вас нужно уравнять, поднять ещё раз или сбросить.'],
+      ['There\'s no limit on how many raises a round can have.','Число рейзов в круге не ограничено.']]],
     [['Good to know','Полезно знать'],[
-      ['Say "raise" before you put chips in, or push the full amount in one move. Otherwise it only counts as a call.','Скажите «рейз» до того, как ставите фишки, или выдвиньте всю сумму сразу. Иначе это считается только коллом.'],
-      ['There\'s no limit on how many raises a round can have.','Число рейзов в круге не ограничено.'],
-      ['A raise reopens the betting: everyone after you has to call, raise again or fold.','После рейза ставки открываются снова: всем после вас нужно уравнять, поднять ещё раз или сбросить.']]]]},
+      ['A raise after a raise is called a <b>re-raise</b> (or 3-bet).','Рейз после рейза называется <b>ре-рейз</b> (или 3-бет).'],
+      ['If you don\'t have enough for a full raise, you can still go all-in for less.','Если на полный рейз не хватает, можно всё равно пойти ва-банк на меньшее.']]]]},
   fold:{t:['Fold','Пас'],l:['Give up your cards and drop out of this hand.','Сбросить карты и выйти из этой раздачи.'],s:[
     [['When you can','Когда можно'],[
       ['<b>Any time</b> it\'s your turn.','<b>В любой момент</b>, когда ваш ход.'],
-      ['Wait for your turn. Folding early gives the others information.','Дождитесь своей очереди. Сброс раньше времени подсказывает другим.']]],
-    [['How much','Сколько'],[
-      ['Nothing more. Chips you already put in stay in the pot.','Больше ничего. Уже поставленные фишки остаются в банке.']]],
+      ['Wait for your turn. Folding early gives the other players information.','Дождитесь своей очереди. Ранний пас подсказывает другим игрокам.']]],
+    [['What it costs','Чего стоит'],[
+      ['Nothing more, but chips you already put in, blinds included, <b>stay in the pot</b>.','Больше ничего, но уже поставленные фишки, включая блайнды, <b>остаются в банке</b>.'],
+      ['You can\'t win any part of this pot after folding.','После паса вы не можете выиграть ничего из этого банка.']]],
+    [['How to do it','Как сделать'],[
+      ['Push your cards face down towards the dealer, or say "fold".','Отдайте карты рубашкой вверх в сторону дилера или скажите «пас».'],
+      ['Once your cards touch the other discards, they\'re dead. You can\'t take them back.','Как только карты попали к сброшенным, они «мёртвые». Забрать их нельзя.'],
+      ['You don\'t have to show them.','Показывать их не нужно.']]],
     [['Good to know','Полезно знать'],[
-      ['Push your cards face down to the dealer. You don\'t have to show them.','Отдайте карты дилеру рубашкой вверх. Показывать их не нужно.'],
-      ['Once you fold, you can\'t win any part of this pot.','После паса вы не можете выиграть ничего из этого банка.'],
-      ['If you can check for free, there\'s no reason to fold.','Если можно бесплатно чекнуть, сбрасывать незачем.']]]]},
+      ['If you can check for free, check instead of folding.','Если можно бесплатно чекнуть, лучше чек, чем пас.'],
+      ['Don\'t show or talk about your folded cards while the hand is still going. It\'s unfair to those still playing.','Не показывайте и не обсуждайте сброшенные карты, пока раздача идёт. Это нечестно к тем, кто ещё играет.'],
+      ['If everyone else folds, the last player wins the pot without showing.','Если все остальные сбросили, последний игрок забирает банк без вскрытия.']]]]},
   allin:{t:['All-in','Ва-банк'],l:['Put every chip you have into the pot.','Поставить в банк все свои фишки.'],s:[
     [['When you can','Когда можно'],[
-      ['<b>Any time</b> it\'s your turn, as a bet, a call or a raise.','<b>В любой момент</b>, когда ваш ход: как ставку, колл или рейз.']]],
+      ['<b>Any time</b> it\'s your turn, as a bet, a call or a raise.','<b>В любой момент</b>, когда ваш ход: как бет, колл или рейз.']]],
     [['How much','Сколько'],[
-      ['<b>Every chip</b> in front of you, even if it\'s less than the bet.','<b>Все ваши фишки</b>, даже если это меньше ставки.']]],
+      ['<b>Every chip</b> in front of you, even if it\'s less than the current bet.','<b>Все ваши фишки</b>, даже если это меньше текущей ставки.'],
+      ['Once you\'re all-in, nobody can make you fold. You stay in to the showdown.','После ва-банка вас никто не может заставить сбросить. Вы остаётесь до вскрытия.']]],
+    [['What you can win','Что можно выиграть'],[
+      ['From each opponent, only <b>as much as you put in</b>.','У каждого соперника — только <b>столько, сколько поставили вы</b>.'],
+      ['Example: you go all-in for 100, two players each put in 300. The main pot is 300 and you can win it. The other 400 is a side pot only those two can win.','Пример: вы пошли ва-банк на 100, двое других поставили по 300. Основной банк — 300, его можно выиграть вам. Остальные 400 — побочный банк только для тех двоих.'],
+      ['Use the <b>Side pots</b> calculator on the game page to work it out.','Посчитать поможет калькулятор <b>побочных банков</b> на странице игры.']]],
+    [['How to do it','Как сделать'],[
+      ['Say "all-in" clearly, then push your chips forward.','Чётко скажите «ва-банк» и выдвиньте фишки.'],
+      ['Keep your stack in view so others can see how much you have.','Держите стек на виду, чтобы другие видели, сколько у вас фишек.']]],
     [['Good to know','Полезно знать'],[
-      ['You can only win from each opponent <b>as much as you put in</b>. Anything above that goes to a side pot you can\'t win. Use the Side pots calculator on the game page.','У каждого соперника вы выигрываете <b>не больше, чем поставили сами</b>. Всё сверху идёт в побочный банк, который вам не выиграть. Используйте калькулятор побочных банков на странице игры.'],
       ['An all-in smaller than a full raise doesn\'t let players who already acted raise again.','Ва-банк меньше полного рейза не даёт тем, кто уже сходил, поднять снова.'],
       ['Once no more betting can happen, everyone left turns their cards face up before the rest of the board is dealt.','Когда ставок больше быть не может, все оставшиеся открывают карты до того, как выложат остальные карты стола.'],
       ['If you lose, you\'re out of the game. Press Out on the game board.','Если проиграете, вы выбываете из игры. Нажмите «Вылет» на табло.']]]]}
@@ -603,9 +652,9 @@ function renderOpt(){
   $('oOk').textContent=L('Got it','Понятно');
   $('oclose').setAttribute('aria-label',L('Close','Закрыть'));
 }
-function openDetails(k){
+function openDetails(k){$("oBody").scrollTop=0;
   openOpt=k;lastFocus=document.activeElement;renderOpt();
-  $('omodal').classList.add('show');document.body.style.overflow='hidden';$('oOk').focus();
+  $('omodal').classList.add('show');document.body.style.overflow='hidden';$('oOk').focus({preventScroll:true});$('ocard').scrollTop=0;$('oBody').scrollTop=0;requestAnimationFrame(()=>{$('oBody').scrollTop=0});
 }
 function closeDetails(){
   if(!openOpt)return;openOpt=null;
