@@ -205,31 +205,6 @@ html[lang=ru] .trigger.hot::before{content:"● СЕЙЧАС"}
 .btn.main{background:var(--y);color:var(--ink);min-width:170px}
 .btn.main:hover{background:var(--y2)}
 
-/* Prizes */
-.money{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:end;margin-top:14px}
-.money label{display:block}
-.money input{width:120px;font:900 italic 32px var(--display);border:1px solid var(--line);border-radius:12px;padding:4px 12px;background:var(--p3);color:#fff;outline:none;margin-top:6px}
-.money input:focus{border-color:var(--y)}
-.pool{text-align:right}
-.pool .total{margin:4px 0 0;color:var(--y)}
-.splits{margin-top:14px}
-.splits .pill{flex:1;font-size:13px;padding:9px 4px;white-space:nowrap}
-.cur{width:max-content;margin-top:6px}
-.cur .pill{padding:8px 11px}
-.state{margin-top:14px;padding:10px 14px;border-radius:10px;font:800 13px var(--mono);letter-spacing:.06em;text-transform:uppercase;background:var(--p3);color:var(--mute)}
-.state.bubble{background:rgba(255,59,71,.15);color:#FF8A92}
-.state.itm{background:rgba(43,214,123,.13);color:var(--green)}
-.state.win{background:var(--y);color:var(--ink)}
-.stand{list-style:none;margin-top:12px}
-.stand li{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
-.stand .pl{font:900 italic 22px var(--display);color:var(--mute)}
-.stand .who{font-size:14px;color:#C9C9D2}
-.stand .amt{font:800 15px var(--mono)}
-.stand li.paid .pl{color:var(--y)}
-.stand li.out .who{color:var(--mute)}
-.stand li.win{background:linear-gradient(90deg,rgba(255,225,0,.14),transparent)}
-.stand li.win .who{color:#fff;font-weight:700}
-
 /* Hands */
 .hands{list-style:none;counter-reset:h}
 .hands li{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--line);counter-increment:h}
@@ -314,6 +289,21 @@ kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);
 .ts-k{font:700 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
 .clock-foot{position:absolute;bottom:16px;left:20px;right:20px;display:flex;justify-content:space-between;font:700 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
 .clock-foot b{color:#fff}
+/* Hand rankings beside the full-screen timer, in the same quiet grey as the other helper text. Only on wide screens, where they fit next to the clock. */
+.tside{display:none;position:absolute;top:50%;left:0;transform:translate(-50%,-50%);list-style:none;flex-direction:column;gap:15px;width:200px;z-index:2;pointer-events:none;align-items:center;text-align:center}
+/* Each list is centred halfway between the clock numbers and the panel edge; placeSides() sets left */
+.tside li{display:flex;flex-direction:column;align-items:center;gap:6px;opacity:.85}
+.tside li b{font:800 italic 19px/1.1 var(--display);text-transform:uppercase;letter-spacing:.03em;color:var(--mute)}
+/* Example hand as small outlined cards, in the same quiet grey */
+.mcards{display:flex;gap:3px}
+.mc{width:24px;height:33px;border:1.5px solid var(--mute);border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 11px/1 var(--mono);color:var(--mute)}
+.mc i{font-style:normal;font-size:12px;margin-top:2px}
+.mc.dim{opacity:.35}
+/* Hearts in a dull red and diamonds in a dull orange (rank and suit only; every card keeps the same grey outline) */
+.mc.h{color:#B0565C}
+.mc.d{color:#BC7A44}
+@media (min-width:1200px){.tside{display:flex}.time{font-size:clamp(110px,17vw,260px)}}
+.rules-btn{display:inline-block;text-decoration:none;margin-top:18px}
 /* Corner text on the timer panel stays white so it reads over the gradient */
 .clock .back,.clock-foot{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.55)}
 .clock .back:hover{color:var(--y)}
@@ -498,34 +488,13 @@ kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);
     </div>
   </div>
 
-  <div class="sec" id="prizes"><h2><span class="num">03</span>Prizes</h2><span class="hint">Press “Out” on the game board when a player is knocked out</span></div>
-  <div class="row">
-    <div class="panel card">
-      <h3>Prize pool</h3>
-      <div class="money">
-        <label><span class="k">Buy-in</span><br><input id="buyin" type="number" min="0" value="10" inputmode="decimal" aria-label="Buy-in per player"></label>
-        <div class="pool"><div class="k">Total pool</div><div class="total" id="pool">$50</div></div>
-      </div>
-      <div class="pills cur" id="cur"><button class="pill on" data-c="$">$</button><button class="pill" data-c="€">€</button><button class="pill" data-c="£">£</button><button class="pill" data-c="₽">₽</button></div>
-      <div class="pills splits" id="splits">
-        <button class="pill" data-s="100">Winner takes all</button><button class="pill" data-s="70,30">70 / 30</button><button class="pill" data-s="50,30,20">50 / 30 / 20</button>
-      </div>
-      <div class="state" id="state">Game on</div>
-    </div>
-    <div class="panel card">
-      <h3>Standings</h3>
-      <div class="sub">Players are listed in the order they were knocked out</div>
-      <ul class="stand" id="stand"></ul>
-    </div>
-  </div>
-
-  <div class="sec" id="hands"><h2><span class="num">04</span>Hand rankings</h2><span class="hint">From best to worst</span></div>
+  <div class="sec" id="hands"><h2><span class="num">03</span>Hand rankings</h2><span class="hint">From best to worst</span></div>
   <div class="panel card">
     <ol class="hands" id="handList"></ol>
     <div class="keys"><span><kbd>Space</kbd>Start / pause</span><span><kbd>N</kbd>Next level</span><span><kbd>F</kbd>Full screen</span><span><kbd>M</kbd>Sound</span><span><kbd>T</kbd>Open timer</span></div>
   </div>
 
-  <div class="sec" id="pots"><h2><span class="num">05</span>Side pots</h2><span class="hint">When players go all-in with different stacks</span></div>
+  <div class="sec" id="pots"><h2><span class="num">04</span>Side pots</h2><span class="hint">When players go all-in with different stacks</span></div>
   <div class="row">
     <div class="panel card">
       <h3>Who put in what</h3>
@@ -543,7 +512,7 @@ kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);
     </div>
   </div>
 
-  <div class="sec" id="rules"><h2><span class="num">06</span>Dealer cheat sheet</h2><span class="hint">The rules that cause arguments</span></div>
+  <div class="sec" id="rules"><h2><span class="num">05</span>Dealer cheat sheet</h2><span class="hint">The rules that cause arguments</span></div>
   <div class="panel card">
     <ol class="rules">
       <li><b>Heads-up (2 players).</b> The dealer posts the small blind and acts first before the flop, then last on every later round.</li>
@@ -552,7 +521,7 @@ kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);
       <li><b>Showdown.</b> The last player to bet or raise on the river shows first. If everyone checked, the first player left of the button shows first.</li>
       <li><b>Odd chip.</b> When a split pot doesn't divide evenly, the extra chip goes to the winner closest to the left of the button. The calculator does this for you.</li>
     </ol>
-    <a class="jl" href="rules.html" style="display:inline-block;text-decoration:none">Full rules and whose turn it is →</a>
+    <a class="btn main rules-btn" href="rules.html">Full rules and whose turn it is →</a>
   </div>
 </main>
 
@@ -587,6 +556,7 @@ kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);
         <span class="ts-k">min</span>
       </div>
     </div>
+    <ol class="tside tl" id="handsL" aria-label="Hand rankings"></ol><ol class="tside tr" id="handsR" aria-label="Hand rankings"></ol>
     <div class="clock-foot"><span>Players <b id="footAlive">5 / 5</b></span><span>Played <b id="elapsed">0:00</b></span></div>
   </div>
 </section>
@@ -650,7 +620,7 @@ const L=(en,ru)=>LANG==='ru'?ru:en;
 
 let mult=5,LEN=600,full=600;
 let n=5,alive=5,lvl=0,rem=LEN,running=false,tick=null;
-let outs=[],buyin=10,cur='$',split=null,sound=true,played=0;
+let outs=[],sound=true,played=0;
 
 const lv=i=>i<5?LOW[i]:BIG[mult][i-5];
 const big=i=>i>=5;
@@ -659,8 +629,6 @@ const fmtLong=s=>{const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`$
 const pending=()=>!big(lvl)&&SETUP[n].at&&alive<=SETUP[n].at;
 const switchNext=()=>!big(lvl)&&(pending()||lvl+1>=SETUP[n].latest);
 const chips=(d,q)=>{let s='';for(let i=0;i<Math.min(q,20);i++)s+=`<div class="chip c${d}">${d}</div>`;return s};
-const defSplit=k=>k<=3?'100':'70,30';
-const money=v=>`${cur}${v.toLocaleString(undefined,{maximumFractionDigits:2})}`;
 const ICON={
   play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>',
   pause:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>',
@@ -670,12 +638,12 @@ const ICON={
 
 /* ---------- Save / load ---------- */
 function save(){
-  try{localStorage.setItem(KEY,JSON.stringify({n,alive,lvl,rem,full,LEN,mult,running,outs,buyin,cur,split,sound,played,at:Date.now()}))}catch(e){}
+  try{localStorage.setItem(KEY,JSON.stringify({n,alive,lvl,rem,full,LEN,mult,running,outs,sound,played,at:Date.now()}))}catch(e){}
 }
 function load(){
   try{
     const s=JSON.parse(localStorage.getItem(KEY));if(!s||!SETUP[s.n])return false;
-    ({n,alive,lvl,rem,full,LEN,mult,outs,buyin,cur,split,sound,played}=s);
+    ({n,alive,lvl,rem,full,LEN,mult,outs,sound,played}=s);
     outs=Array.isArray(outs)?outs:[];
     if(!BIG[mult])mult=5;
     if(s.running){const gone=Math.floor((Date.now()-s.at)/1000);played+=Math.min(gone,rem);rem=Math.max(0,rem-gone);running=true}
@@ -722,7 +690,6 @@ function render(){
   $('ladder').innerHTML=Array.from({length:10},(_,i)=>lv(i)).map((x,i)=>`<button class="step${big(i)?' p2':''}${i===5?' split':''}${i===lvl?' now':''}${i<lvl?' past':''}" data-i="${i}" aria-label="${L(`Level ${i+1}, blinds`,`Уровень ${i+1}, блайнды`)} ${x[0]} / ${x[1]}"><div class="l">${big(i)?L('BIG ','БОЛ ')+(i-4):L('L','У')+(i+1)}</div><div class="b">${x[0]}/${x[1]}</div></button>`).join('');
   $('modalText').innerHTML=L(`Finish this hand, then everyone ${mult>1?`multiplies their stack by ${mult}, `:''}rounds up to the next 25 and swaps for 25s and 100s. Blinds start at <b>${b0}</b>.`,`Доиграйте эту раздачу. Затем каждый ${mult>1?`умножает свой стек на ${mult}, `:''}округляет вверх до 25 и меняет фишки на 25 и 100. Блайнды начинаются с <b>${b0}</b>.`);
   $('soundBtn').innerHTML=sound?ICON.on:ICON.off;$('soundBtn').classList.toggle('off',!sound);
-  renderPrizes();
   save();
 }
 
@@ -747,34 +714,11 @@ function colorUp(){
   document.querySelectorAll('#mult .pill').forEach(x=>x.classList.toggle('on',+x.dataset.m===mult));
 }
 
-function renderPrizes(){
-  const sp=(split||defSplit(n)).split(',').map(Number).slice(0,n-1||1);
-  const tot=sp.reduce((a,b)=>a+b,0),pool=Math.max(0,buyin)*n;
-  const amts=sp.map(p=>Math.floor(pool*p/tot*100)/100);
-  amts[0]=Math.round((amts[0]+pool-amts.reduce((a,b)=>a+b,0))*100)/100;
-  $('pool').textContent=money(pool);
-  document.querySelectorAll('#splits .pill').forEach(b=>{
-    b.classList.toggle('on',b.dataset.s===(split||defSplit(n)));
-    b.disabled=b.dataset.s.split(',').length>=n&&n>1&&b.dataset.s!=='100';b.style.opacity=b.disabled?.35:'';
-  });
-  document.querySelectorAll('#cur .pill').forEach(b=>b.classList.toggle('on',b.dataset.c===cur));
-  const paid=amts.length,st=$('state');
-  if(alive===1){st.className='state win';st.textContent=`🏆 ${L('Winner takes','Победитель забирает')} ${money(amts[0])}`}
-  else if(paid>1&&alive===paid+1){st.className='state bubble';st.textContent=L('Bubble: the next player out wins nothing','Пузырь: следующий, кто вылетит, ничего не получит')}
-  else if(paid>1&&alive<=paid){st.className='state itm';st.textContent=L('Everyone left wins a prize','Все оставшиеся получат приз')}
-  else{st.className='state';st.textContent=L(`${alive} players left · ${paid} paid place${paid>1?'s':''}`,`Осталось игроков: ${alive} · призовых мест: ${paid}`)}
-  const byPlace={};outs.forEach(o=>byPlace[o.place]=o);
-  let html='';
-  for(let p=1;p<=n;p++){
-    const o=byPlace[p],a=amts[p-1],win=p===1&&alive===1;
-    const who=win?L('Winner','Победитель'):o?`${L('Out at Level','Вылет на уровне')} ${o.lvl}${o.at?' · '+fmtLong(o.at):''}`:L('Still playing','Ещё в игре');
-    html+=`<li class="${a!=null?'paid':''}${o?' out':''}${win?' win':''}"><span class="pl">${p}${L(['st','nd','rd'][p-1]||'th','-е')}</span><span class="who">${who}</span><span class="amt">${a!=null?money(a):'—'}</span></li>`;
-  }
-  $('stand').innerHTML=html;
-}
-
 function renderHands(){
   $('handList').innerHTML=HANDS.map(([en,de,c,m],hi)=>{const [nm,d]=LANG==='ru'?HANDS_RU[hi]:[en,de];return `<li><span class="hn">${nm}<small>${d}</small></span><span class="cards">${c.split(' ').map((x,i)=>{const r=x.slice(0,-1),su=x.slice(-1);return `<span class="pc${'♥♦'.includes(su)?' r':''}${m&&m[i]==='0'?' dim':''}">${r}<span>${su}</span></span>`}).join('')}</span></li>`}).join('');
+  const side=HANDS.map(([en,,c,m],hi)=>`<li><b>${hi+1}. ${LANG==="ru"?HANDS_RU[hi][0]:en}</b><span class="mcards">${c.split(' ').map((x,i)=>`<span class="mc${x.endsWith('♥')?' h':x.endsWith('♦')?' d':''}${m&&m[i]==='0'?' dim':''}">${x.slice(0,-1)}<i>${x.slice(-1)}</i></span>`).join('')}</span></li>`);
+  $('handsL').innerHTML=side.slice(0,5).join('');$('handsR').innerHTML=side.slice(5).join('');
+  placeSides();
 }
 
 /* ---------- Timer ---------- */
@@ -826,7 +770,7 @@ $('mult').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;mult=+b.
 document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{rem=Math.max(1,rem+ +b.dataset.add);full=Math.max(full,rem);render()});
 $('lens').onclick=e=>{const b=e.target.closest('[data-len]');if(!b)return;
   const used=full-rem;LEN=+b.dataset.len*60;full=LEN;rem=Math.max(1,LEN-used);syncLens();render()};
-$('seg').onclick=e=>{const b=e.target.closest('button');if(!b)return;n=+b.dataset.n;split=null;newGame()};
+$('seg').onclick=e=>{const b=e.target.closest('button');if(!b)return;n=+b.dataset.n;newGame()};
 $('play').onclick=()=>running?stop():start();
 $('miniPlay').onclick=()=>running?stop():start();
 $('nextBtn').onclick=()=>{rem=0;ended()};
@@ -836,11 +780,17 @@ $('plus').onclick=()=>{if(outs.length){outs.pop();alive++;render()}};
 $('ladder').onclick=e=>{const s=e.target.closest('.step');if(s)setLevel(+s.dataset.i)};
 $('goBig').onclick=()=>{$('modal').classList.remove('show');setLevel(5)};
 $('old').oninput=colorUp;
-$('buyin').oninput=()=>{buyin=Math.max(0,parseFloat($('buyin').value)||0);render()};
-$('cur').onclick=e=>{const b=e.target.closest('[data-c]');if(!b)return;cur=b.dataset.c;render()};
-$('splits').onclick=e=>{const b=e.target.closest('[data-s]');if(!b||b.disabled)return;split=b.dataset.s;render()};
 $('soundBtn').onclick=()=>{sound=!sound;render();if(sound)beep(1)};
 $('fsBtn').onclick=fullscreen;
+// Centre each hand list halfway between the clock numbers and the panel edge
+function placeSides(){
+  const c=$("clock").getBoundingClientRect(),t=$("time"),r=document.createRange();
+  r.selectNodeContents(t);const tr=r.getBoundingClientRect();if(!c.width||!tr.width)return;
+  $('handsL').style.left=(tr.left-c.left)/2+'px';
+  $('handsR').style.left=(c.width+(tr.right-c.left))/2+'px';
+}
+addEventListener("resize",placeSides);document.addEventListener("fullscreenchange",()=>setTimeout(placeSides,60));
+if(document.fonts)document.fonts.ready.then(placeSides);
 document.addEventListener('keydown',e=>{
   if(e.target.matches('input,textarea')||(e.key===' '&&e.target.closest('button,a'))||e.metaKey||e.ctrlKey||e.altKey)return;
   const k=e.key.toLowerCase();
@@ -984,12 +934,12 @@ $('lang').onclick=e=>{const b=e.target.closest('[data-lang]');if(b&&b.dataset.la
 
 /* ---------- Boot ---------- */
 const restored=load();
-$('buyin').value=buyin;
 $('old').value=SETUP[n].v;
 syncLens();renderHands();renderStacks();colorUp();spInit(Math.max(2,alive));
 if(restored&&running){running=false;if(rem<=0){rem=0;render();ended()}else start()}
 else render();
 applyLang();
+placeSides();
 </script>
 </body>
 </html>

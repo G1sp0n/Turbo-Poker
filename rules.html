@@ -126,6 +126,41 @@ h1 em{font-style:inherit;color:var(--y);display:block}
 .act b{display:block;font:900 italic 22px var(--display);text-transform:uppercase;color:var(--y)}
 .act span{font-size:13px;color:#C9C9D2;line-height:1.45;display:block;margin-top:4px}
 .act em{font-style:normal;font:700 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);display:block;margin-top:8px}
+/* Option tiles open a detail card */
+.act{cursor:pointer}
+.act::after{content:"Details →";display:block;margin-top:10px;font:800 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--y);transition:color .15s}
+html[lang=ru] .act::after{content:"Подробнее →"}
+.act:hover::after,.act:focus-visible::after{color:var(--ink)}
+.act:focus-visible{background:var(--y);border-color:var(--y);outline:none}
+.act:focus-visible b,.act:focus-visible span,.act:focus-visible em{color:var(--ink)}
+.omodal{position:fixed;inset:0;z-index:50;display:none;place-items:center;padding:20px;background:rgba(6,6,8,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.omodal.show{display:grid}
+.ocard{width:100%;max-width:540px;max-height:calc(100vh - 40px);overflow:auto;padding:32px 28px 26px;border:1.5px solid var(--y);animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
+/* Plain yellow outline, the same thickness all round */
+.ocard h3{font:900 italic 52px/.92 var(--display);text-transform:uppercase;color:var(--y);margin-top:6px}
+.ocard .olede{color:#DADAE2;font-size:16px;line-height:1.5;margin-top:10px}
+.osec{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.osec .k{color:var(--y)}
+.osec ul{list-style:none;margin-top:8px;display:flex;flex-direction:column;gap:8px}
+.osec li{position:relative;padding-left:16px;font-size:15px;line-height:1.5;color:#DADAE2}
+.osec li::before{content:"";position:absolute;left:0;top:.6em;width:6px;height:6px;background:var(--y);clip-path:var(--cut-s)}
+.osec li b{color:#fff}
+.oclose{position:absolute;top:16px;right:16px;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--p3);color:#fff;font:700 20px/1 var(--body);display:grid;place-items:center}
+.oclose:hover{background:#3A3A44}
+.ocard .btn{margin-top:22px;width:100%}
+@keyframes pop{from{transform:scale(.9);opacity:0}}
+@media (max-width:600px){.ocard{padding:28px 20px 20px}.ocard h3{font-size:42px}}
+
+/* Hand rankings */
+.hands{list-style:none;counter-reset:h;margin-top:6px}
+.hands li{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--line);counter-increment:h}
+.hands li::before{content:counter(h);font:800 12px var(--mono);color:var(--mute)}
+.hands li:first-child::before{color:var(--y)}
+.hands .hn{font:800 italic 18px var(--display);text-transform:uppercase;letter-spacing:.02em}
+.hands .hn small{display:block;font:500 12px var(--body);font-style:normal;text-transform:none;color:var(--mute);letter-spacing:0}
+.cards{display:flex;gap:3px}
+.hands .pc{animation:none}
+.pc.dim{opacity:.28}
 
 /* Rules */
 .rules{list-style:none;counter-reset:r;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px;margin-top:8px}
@@ -205,28 +240,33 @@ footer a{color:var(--mute)}
     </div>
   </section>
 
-  <div class="sec" id="actions"><h2><span class="num">02</span>When it's your turn</h2><span class="hint">You get one of these each time the action reaches you</span></div>
+  <div class="sec" id="actions"><h2><span class="num">02</span>When it's your turn</h2><span class="hint">Tap an option to see all its rules</span></div>
   <section class="panel card">
     <h3>Your options</h3>
     <div class="sub">What you can do depends on whether anyone has bet yet in this round.</div>
     <div class="acts">
-      <div class="act"><b>Check</b><span>Pass without betting. The turn moves on to the next player.</span><em>Only if nobody has bet</em></div>
-      <div class="act"><b>Bet</b><span>Put chips in first. Everyone after you has to call, raise or fold.</span><em>Only if nobody has bet · at least the big blind</em></div>
-      <div class="act"><b>Call</b><span>Match the current bet to stay in the hand.</span><em>After someone bets</em></div>
-      <div class="act"><b>Raise</b><span>Make the bet bigger. Everyone has to respond to the new amount.</span><em>After someone bets · see min raise</em></div>
-      <div class="act"><b>Fold</b><span>Give up your cards and anything you've already put in this hand.</span><em>Any time it's your turn</em></div>
-      <div class="act"><b>All-in</b><span>Push every chip you have. You can't be forced out of the hand after that.</span><em>Any time it's your turn</em></div>
+      <div class="act" data-opt="check" role="button" tabindex="0"><b>Check</b><span>Pass without betting. The turn moves on to the next player.</span><em>Only if nobody has bet</em></div>
+      <div class="act" data-opt="bet" role="button" tabindex="0"><b>Bet</b><span>Put chips in first. Everyone after you has to call, raise or fold.</span><em>Only if nobody has bet · at least the big blind</em></div>
+      <div class="act" data-opt="call" role="button" tabindex="0"><b>Call</b><span>Match the current bet to stay in the hand.</span><em>After someone bets</em></div>
+      <div class="act" data-opt="raise" role="button" tabindex="0"><b>Raise</b><span>Make the bet bigger. Everyone has to respond to the new amount.</span><em>After someone bets · see min raise</em></div>
+      <div class="act" data-opt="fold" role="button" tabindex="0"><b>Fold</b><span>Give up your cards and anything you've already put in this hand.</span><em>Any time it's your turn</em></div>
+      <div class="act" data-opt="allin" role="button" tabindex="0"><b>All-in</b><span>Push every chip you have. You can't be forced out of the hand after that.</span><em>Any time it's your turn</em></div>
     </div>
     <p class="sub" style="margin-top:14px">A betting round ends when everyone still in has put in the same amount, or everyone has checked. If all but one player fold, the last player wins the pot right away and doesn't have to show their cards.</p>
   </section>
 
-  <div class="sec" id="all"><h2><span class="num">03</span>All the rules</h2><span class="hint">Settle any argument here</span></div>
+  <div class="sec" id="handsec"><h2><span class="num">03</span>Hand rankings</h2><span class="hint">From best to worst</span></div>
+  <section class="panel card">
+    <ol class="hands" id="handList"></ol>
+  </section>
+
+  <div class="sec" id="all"><h2><span class="num">04</span>All the rules</h2><span class="hint">Settle any argument here</span></div>
   <section class="panel card">
     <div class="group">Setting up</div>
     <ol class="rules">
       <li><b>Pick the first dealer.</b> Everyone draws one card. Highest card gets the dealer button. Aces are high.</li>
       <li><b>Starting chips.</b> Everyone starts with the same stack, shown on the game page under Chips. The rest stays in the bank for change.</li>
-      <li><b>Buy-in.</b> Everyone pays the same buy-in before the first hand. No rebuys: once you're out, you're out.</li>
+      <li><b>No rebuys.</b> Once you lose all your chips, you're out. Nobody buys back in.</li>
       <li><b>Seats.</b> Keep the same seats all game. The button moving around makes it fair.</li>
     </ol>
 
@@ -286,11 +326,22 @@ footer a{color:var(--mute)}
       <li><b>Low League.</b> The first levels use white 1s, red 5s and blue 10s.</li>
       <li><b>Switching to Big League.</b> At 3 players left (2 players left in a 3 or 4 player game), or after Level 5 at the latest (after Level 4 heads-up), everyone finishes the hand and swaps up.</li>
       <li><b>Colouring up.</b> Count your stack, multiply it by the number chosen on the game page, round up to the next 25 and swap for green 25s and black 100s.</li>
-      <li><b>Knocked out.</b> When you lose every chip, you're out. Press Out on the game board so the standings and prizes stay right.</li>
-      <li><b>Winning.</b> The game ends when one player has every chip. Prizes are paid as shown on the game page.</li>
+      <li><b>Knocked out.</b> When you lose every chip, you're out. Press Out on the game board so it knows how many players are left.</li>
+      <li><b>Winning.</b> The game ends when one player has every chip. That player wins.</li>
     </ol>
   </section>
 </main>
+
+<div class="omodal" id="omodal" role="dialog" aria-modal="true" aria-labelledby="oTitle">
+  <div class="panel ocard" id="ocard">
+    <button class="oclose" id="oclose" aria-label="Close">×</button>
+    <div class="k" id="oKick"></div>
+    <h3 id="oTitle"></h3>
+    <p class="olede" id="oLede"></p>
+    <div id="oBody"></div>
+    <button class="btn main" id="oOk">Got it</button>
+  </div>
+</div>
 
 <footer>
   <span>Turbo Poker · House rules</span>
@@ -406,7 +457,7 @@ const RU={
   'Setting up':'Подготовка',
   'Pick the first dealer.':'Первый дилер.','Everyone draws one card. Highest card gets the dealer button. Aces are high.':'Каждый тянет по одной карте. У кого старше, тот получает фишку дилера. Туз — самая старшая.',
   'Starting chips.':'Стартовые фишки.','Everyone starts with the same stack, shown on the game page under Chips. The rest stays in the bank for change.':'Все начинают с одинаковым стеком — он указан на странице игры в разделе «Фишки». Остальное лежит в банке на размен.',
-  'Buy-in.':'Взнос.','Everyone pays the same buy-in before the first hand. No rebuys: once you\'re out, you\'re out.':'Все платят одинаковый взнос до первой раздачи. Докупаться нельзя: вылетел — значит вылетел.',
+  'No rebuys.':'Без докупки.','Once you lose all your chips, you\'re out. Nobody buys back in.':'Потеряли все фишки — вы выбыли. Докупаться нельзя.',
   'Seats.':'Места.','Keep the same seats all game. The button moving around makes it fair.':'Всю игру сидите на одних и тех же местах. Фишка дилера ходит по кругу, так что всё честно.',
   'Every hand':'Каждая раздача',
   'Blinds.':'Блайнды.','The player to the left of the dealer button posts the small blind. The next player to the left posts the big blind. Use the amounts on the timer.':'Игрок слева от фишки дилера ставит малый блайнд, следующий слева — большой. Суммы смотрите на таймере.',
@@ -448,8 +499,9 @@ const RU={
   'Low League.':'Малая лига.','The first levels use white 1s, red 5s and blue 10s.':'На первых уровнях играют белыми по 1, красными по 5 и синими по 10.',
   'Switching to Big League.':'Переход в Большую лигу.','At 3 players left (2 players left in a 3 or 4 player game), or after Level 5 at the latest (after Level 4 heads-up), everyone finishes the hand and swaps up.':'Когда остаётся 3 игрока (2 — в игре на 3 или 4 человек) или не позже чем после уровня 5 (после уровня 4 вдвоём), все доигрывают раздачу и меняют фишки.',
   'Colouring up.':'Обмен фишек.','Count your stack, multiply it by the number chosen on the game page, round up to the next 25 and swap for green 25s and black 100s.':'Посчитайте стек, умножьте на число, выбранное на странице игры, округлите вверх до 25 и поменяйте на зелёные 25 и чёрные 100.',
-  'Knocked out.':'Вылет.','When you lose every chip, you\'re out. Press Out on the game board so the standings and prizes stay right.':'Когда вы теряете все фишки, вы выбываете. Нажмите «Вылет» на табло, чтобы результаты и призы считались правильно.',
-  'Winning.':'Победа.','The game ends when one player has every chip. Prizes are paid as shown on the game page.':'Игра заканчивается, когда все фишки у одного игрока. Призы выплачиваются, как указано на странице игры.',
+  'Knocked out.':'Вылет.','When you lose every chip, you\'re out. Press Out on the game board so it knows how many players are left.':'Когда вы теряете все фишки, вы выбываете. Нажмите «Вылет» на табло, чтобы оно знало, сколько игроков осталось.',
+  'Winning.':'Победа.','The game ends when one player has every chip. That player wins.':'Игра заканчивается, когда все фишки у одного игрока. Он и побеждает.',
+  'Tap an option to see all its rules':'Нажмите на вариант, чтобы увидеть все правила','Hand rankings':'Комбинации','From best to worst':'От старшей к младшей',
   'Turbo Poker · House rules':'Turbo Poker · Правила игры','Back to the game':'Вернуться к игре'
 };
 const origText=new Map(),origAttr=new Map();
@@ -471,16 +523,139 @@ function applyLang(){
   $('h1em').textContent=L('Rules','игры');
   document.querySelectorAll('#lang button').forEach(b=>b.classList.toggle('on',b.dataset.lang===LANG));
 }
+
+/* ---------- Option details ---------- */
+// Each option: title, one-line summary, then sections of bullet points. [English, Russian]
+const OPTS={
+  check:{t:['Check','Чек'],l:['Pass the turn without putting in any chips.','Пропустить ход, не ставя фишек.'],s:[
+    [['When you can','Когда можно'],[
+      ['Only when <b>nobody has bet yet</b> in this betting round.','Только если в этом круге <b>ещё никто не ставил</b>.'],
+      ['Before the flop, only the <b>big blind</b> can check, and only if nobody raised.','До флопа чекнуть может только <b>большой блайнд</b>, и только если никто не поднимал.']]],
+    [['How much','Сколько'],[
+      ['Nothing. You put in no chips.','Ничего. Фишки не ставятся.']]],
+    [['Good to know','Полезно знать'],[
+      ['If everyone checks, the round ends and the next card is dealt.','Если все чекнули, круг заканчивается и открывается следующая карта.'],
+      ['Checking doesn\'t take you out. If someone bets after you, you still get to call, raise or fold. Checking and then raising (a <b>check-raise</b>) is allowed.','Чек не выводит вас из игры. Если после вас кто-то поставит, вы сможете уравнять, поднять или сбросить. Чек, а потом рейз (<b>чек-рейз</b>) разрешён.'],
+      ['Tap the table or say "check" so everyone knows.','Постучите по столу или скажите «чек», чтобы все поняли.']]]]},
+  bet:{t:['Bet','Ставка'],l:['Be the first to put chips in this round.','Первым поставить фишки в этом круге.'],s:[
+    [['When you can','Когда можно'],[
+      ['When <b>nobody has bet yet</b> in this round.','Когда в этом круге <b>ещё никто не ставил</b>.'],
+      ['Before the flop the blinds already count as bets, so there you call or raise instead.','До флопа блайнды уже считаются ставками, поэтому там вы уравниваете или поднимаете.']]],
+    [['How much','Сколько'],[
+      ['At least the <b>big blind</b>.','Не меньше <b>большого блайнда</b>.'],
+      ['At most every chip in front of you. There\'s no upper limit.','Не больше всех ваших фишек. Верхнего предела нет.'],
+      ['If you have less than the big blind, you can still go all-in for what you have.','Если у вас меньше большого блайнда, можно пойти ва-банк на всё, что есть.']]],
+    [['Good to know','Полезно знать'],[
+      ['Say "bet" and the amount, or push the chips in one move.','Скажите «ставка» и сумму или выдвиньте фишки одним движением.'],
+      ['Going back to your stack for more chips (a <b>string bet</b>) isn\'t allowed. Only the first amount counts.','Возвращаться к стеку за добавкой (<b>ставка в несколько приёмов</b>) нельзя. Считается только первая сумма.'],
+      ['Everyone after you has to call, raise or fold.','Всем после вас нужно уравнять, поднять или сбросить.']]]]},
+  call:{t:['Call','Колл'],l:['Match the biggest bet so far to stay in the hand.','Уравнять самую большую ставку, чтобы остаться в игре.'],s:[
+    [['When you can','Когда можно'],[
+      ['When someone has <b>bet or raised</b> in this round.','Когда в этом круге кто-то <b>поставил или поднял</b>.']]],
+    [['How much','Сколько'],[
+      ['Exactly enough to match the <b>biggest bet</b> so far.','Ровно столько, чтобы сравняться с <b>самой большой ставкой</b>.'],
+      ['If you already put chips in this round, like a blind, you only add the difference. Blinds 25/50, raise to 150: the small blind adds 125.','Если вы уже ставили в этом круге, например блайнд, доставьте только разницу. Блайнды 25/50, рейз до 150: малый блайнд доставляет 125.']]],
+    [['Good to know','Полезно знать'],[
+      ['Putting in a single bigger chip without saying anything counts as a call.','Если молча положить одну крупную фишку, это колл.'],
+      ['If you don\'t have enough, you can call all-in for less. You can then only win that much from each player, and the rest goes to a <b>side pot</b>.','Если фишек не хватает, можно уравнять ва-банк на меньшую сумму. Тогда вы выигрываете у каждого не больше этого, а остальное идёт в <b>побочный банк</b>.']]]]},
+  raise:{t:['Raise','Рейз'],l:['Make the bet bigger. Everyone has to answer the new amount.','Увеличить ставку. Всем нужно ответить на новую сумму.'],s:[
+    [['When you can','Когда можно'],[
+      ['When someone has <b>already bet</b> in this round and it\'s your turn.','Когда в этом круге <b>уже есть ставка</b> и сейчас ваш ход.'],
+      ['Before the flop the big blind counts as a bet, so the first player can raise straight away.','До флопа большой блайнд считается ставкой, так что первый игрок может сразу поднять.'],
+      ['If you already acted and the only thing since is a <b>short all-in</b> (less than a full raise), you can\'t raise again. Only call or fold.','Если вы уже сходили, а после было только <b>неполное ва-банк</b> (меньше полного рейза), поднять снова нельзя. Только уравнять или сбросить.']]],
+    [['How much','Сколько'],[
+      ['The raise must be at least as big as the <b>last bet or raise</b>.','Рейз должен быть не меньше <b>предыдущей ставки или рейза</b>.'],
+      ['Example: blinds 25/50, someone raises to 150 (+100). The next raise must be to at least <b>250</b>.','Пример: блайнды 25/50, кто-то поднял до 150 (+100). Следующий рейз — минимум до <b>250</b>.'],
+      ['At most every chip in front of you.','Не больше всех ваших фишек.']]],
+    [['Good to know','Полезно знать'],[
+      ['Say "raise" before you put chips in, or push the full amount in one move. Otherwise it only counts as a call.','Скажите «рейз» до того, как ставите фишки, или выдвиньте всю сумму сразу. Иначе это считается только коллом.'],
+      ['There\'s no limit on how many raises a round can have.','Число рейзов в круге не ограничено.'],
+      ['A raise reopens the betting: everyone after you has to call, raise again or fold.','После рейза ставки открываются снова: всем после вас нужно уравнять, поднять ещё раз или сбросить.']]]]},
+  fold:{t:['Fold','Пас'],l:['Give up your cards and drop out of this hand.','Сбросить карты и выйти из этой раздачи.'],s:[
+    [['When you can','Когда можно'],[
+      ['<b>Any time</b> it\'s your turn.','<b>В любой момент</b>, когда ваш ход.'],
+      ['Wait for your turn. Folding early gives the others information.','Дождитесь своей очереди. Сброс раньше времени подсказывает другим.']]],
+    [['How much','Сколько'],[
+      ['Nothing more. Chips you already put in stay in the pot.','Больше ничего. Уже поставленные фишки остаются в банке.']]],
+    [['Good to know','Полезно знать'],[
+      ['Push your cards face down to the dealer. You don\'t have to show them.','Отдайте карты дилеру рубашкой вверх. Показывать их не нужно.'],
+      ['Once you fold, you can\'t win any part of this pot.','После паса вы не можете выиграть ничего из этого банка.'],
+      ['If you can check for free, there\'s no reason to fold.','Если можно бесплатно чекнуть, сбрасывать незачем.']]]]},
+  allin:{t:['All-in','Ва-банк'],l:['Put every chip you have into the pot.','Поставить в банк все свои фишки.'],s:[
+    [['When you can','Когда можно'],[
+      ['<b>Any time</b> it\'s your turn, as a bet, a call or a raise.','<b>В любой момент</b>, когда ваш ход: как ставку, колл или рейз.']]],
+    [['How much','Сколько'],[
+      ['<b>Every chip</b> in front of you, even if it\'s less than the bet.','<b>Все ваши фишки</b>, даже если это меньше ставки.']]],
+    [['Good to know','Полезно знать'],[
+      ['You can only win from each opponent <b>as much as you put in</b>. Anything above that goes to a side pot you can\'t win. Use the Side pots calculator on the game page.','У каждого соперника вы выигрываете <b>не больше, чем поставили сами</b>. Всё сверху идёт в побочный банк, который вам не выиграть. Используйте калькулятор побочных банков на странице игры.'],
+      ['An all-in smaller than a full raise doesn\'t let players who already acted raise again.','Ва-банк меньше полного рейза не даёт тем, кто уже сходил, поднять снова.'],
+      ['Once no more betting can happen, everyone left turns their cards face up before the rest of the board is dealt.','Когда ставок больше быть не может, все оставшиеся открывают карты до того, как выложат остальные карты стола.'],
+      ['If you lose, you\'re out of the game. Press Out on the game board.','Если проиграете, вы выбываете из игры. Нажмите «Вылет» на табло.']]]]}
+};
+let openOpt=null,lastFocus=null;
+const P=a=>LANG==='ru'?a[1]:a[0];
+function renderOpt(){
+  if(!openOpt)return;const o=OPTS[openOpt];
+  $('oKick').textContent=L('Your options','Что можно сделать');
+  $('oTitle').textContent=P(o.t);
+  $('oLede').textContent=P(o.l);
+  $('oBody').innerHTML=o.s.map(([h,items])=>`<div class="osec"><div class="k">${P(h)}</div><ul>${items.map(i=>`<li>${P(i)}</li>`).join('')}</ul></div>`).join('');
+  $('oOk').textContent=L('Got it','Понятно');
+  $('oclose').setAttribute('aria-label',L('Close','Закрыть'));
+}
+function openDetails(k){
+  openOpt=k;lastFocus=document.activeElement;renderOpt();
+  $('omodal').classList.add('show');document.body.style.overflow='hidden';$('oOk').focus();
+}
+function closeDetails(){
+  if(!openOpt)return;openOpt=null;
+  $('omodal').classList.remove('show');document.body.style.overflow='';
+  if(lastFocus)lastFocus.focus();
+}
+document.querySelector('.acts').addEventListener('click',e=>{const t=e.target.closest('[data-opt]');if(t)openDetails(t.dataset.opt)});
+document.querySelector('.acts').addEventListener('keydown',e=>{const t=e.target.closest('[data-opt]');if(t&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openDetails(t.dataset.opt)}});
+$('omodal').onclick=e=>{if(e.target===$('omodal'))closeDetails()};
+$('oclose').onclick=closeDetails;$('oOk').onclick=closeDetails;
+
+/* ---------- Hand rankings ---------- */
+const HANDS=[
+  ['Royal flush','A K Q J 10, all the same suit','A♠ K♠ Q♠ J♠ 10♠'],
+  ['Straight flush','Five cards in a row, all the same suit','9♥ 8♥ 7♥ 6♥ 5♥'],
+  ['Four of a kind','Four cards of the same rank','K♣ K♦ K♥ K♠ 3♦','11110'],
+  ['Full house','Three of a kind plus a pair','Q♠ Q♥ Q♦ 7♣ 7♠'],
+  ['Flush','Any five cards of the same suit','A♦ J♦ 8♦ 6♦ 2♦'],
+  ['Straight','Five cards in a row, any suits','10♣ 9♦ 8♠ 7♥ 6♣'],
+  ['Three of a kind','Three cards of the same rank','7♠ 7♥ 7♦ K♣ 2♠','11100'],
+  ['Two pair','Two different pairs','J♥ J♣ 4♠ 4♦ A♥','11110'],
+  ['One pair','Two cards of the same rank','10♠ 10♥ K♦ 6♣ 3♠','11000'],
+  ['High card','Nothing else, so the highest card plays','A♣ Q♦ 9♠ 5♥ 3♣','10000']
+];
+const HANDS_RU=[
+  ['Роял-флеш','A K Q J 10 одной масти'],
+  ['Стрит-флеш','Пять карт подряд одной масти'],
+  ['Каре','Четыре карты одного достоинства'],
+  ['Фулл-хаус','Тройка плюс пара'],
+  ['Флеш','Любые пять карт одной масти'],
+  ['Стрит','Пять карт подряд, масти любые'],
+  ['Тройка','Три карты одного достоинства'],
+  ['Две пары','Две разные пары'],
+  ['Пара','Две карты одного достоинства'],
+  ['Старшая карта','Ничего нет, играет самая старшая карта']
+];
+function renderHands(){
+  $('handList').innerHTML=HANDS.map(([en,de,c,m],hi)=>{const [nm,d]=LANG==='ru'?HANDS_RU[hi]:[en,de];return `<li><span class="hn">${nm}<small>${d}</small></span><span class="cards">${c.split(' ').map((x,i)=>{const r=x.slice(0,-1),su=x.slice(-1);return `<span class="pc${'♥♦'.includes(su)?' r':''}${m&&m[i]==='0'?' dim':''}">${r}<span>${su}</span></span>`}).join('')}</span></li>`}).join('');
+}
+
 $('lang').onclick=e=>{const b=e.target.closest('[data-lang]');if(!b||b.dataset.lang===LANG)return;
-  LANG=b.dataset.lang;try{localStorage.setItem(LKEY,LANG)}catch(e){}render();applyLang()};
+  LANG=b.dataset.lang;try{localStorage.setItem(LKEY,LANG)}catch(e){}render();renderHands();renderOpt();applyLang()};
 
 $('np').onclick=e=>{const b=e.target.closest('[data-n]');if(!b)return;n=+b.dataset.n;btn=0;step=0;render()};
 $('moveBtn').onclick=()=>{btn=(btn+1)%n;render()};
 $('steps').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;step=+b.dataset.i;render()};
 $('prev').onclick=()=>{if(step>0){step--;render()}};
 $('next').onclick=()=>{if(step<STEPS.length-1)step++;else{btn=(btn+1)%n;step=0}render()};
-document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')$('next').click();else if(e.key==='ArrowLeft')$('prev').click()});
-render();applyLang();
+document.addEventListener('keydown',e=>{if(openOpt){if(e.key==='Escape')closeDetails();return}if(e.key==='ArrowRight')$('next').click();else if(e.key==='ArrowLeft')$('prev').click()});
+render();renderHands();applyLang();
 </script>
 </body>
 </html>
