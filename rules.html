@@ -114,10 +114,6 @@ button.seat:hover .av{border-color:rgba(255,255,255,.35)}
 .seat.sel .nm{color:#fff}
 .tap-hint{text-align:center;font:700 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-top:36px}
 .who{position:relative}
-.who.mine{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.3)}
-.who.mine .k{color:#fff;padding-right:28px}
-.who-x{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:8px;border:0;background:rgba(255,255,255,.08);color:#fff;font:700 16px/1 var(--mono);cursor:pointer}
-.who-x:hover{background:rgba(255,255,255,.18)}
 
 .steps{list-style:none;display:flex;gap:4px;flex-wrap:wrap;margin-bottom:18px}
 .steps button{font:800 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:7px 9px;border-radius:8px;border:1px solid var(--line);background:var(--p3);color:var(--mute)}
@@ -166,6 +162,9 @@ html[lang=ru] .act::after{content:"Подробнее →"}
 .osec li{position:relative;padding-left:16px;font-size:15px;line-height:1.5;color:#DADAE2}
 .osec li::before{content:"";position:absolute;left:0;top:.6em;width:6px;height:6px;background:var(--y);clip-path:var(--cut-s)}
 .osec li b{color:#fff}
+/* Player cards hold one short note, so they shrink to fit */
+.ocard.short{height:auto;max-height:calc(100svh - 40px)}
+.osec p{margin-top:8px;font-size:17px;line-height:1.55;color:#DADAE2}.osec p b{color:#fff}
 .oclose{position:absolute;top:16px;right:16px;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--p3);color:#fff;font:700 20px/1 var(--body);display:grid;place-items:center}
 .oclose:hover{background:#3A3A44}
 @keyframes pop{from{transform:scale(.9);opacity:0}}
@@ -497,10 +496,7 @@ function render(){
   $('stageK').textContent=L(`Step ${step+1} of ${STEPS.length}`,`Шаг ${step+1} из ${STEPS.length}`);
   $('stageT').textContent=st.t();
   $('stageP').innerHTML=st.p();
-  const w=$('who');w.classList.toggle('mine',sel!==null);
-  w.innerHTML=sel===null
-    ?`<span class="k">${L('Whose turn','Чей ход')}</span>${st.who()}`
-    :`<span class="k">${name(sel)}${roles(sel)?' · '+roles(sel):''}</span>${seatTxt(sel)}<button class="who-x" id="whoX" type="button" aria-label="${L('Back to whose turn','Назад к «Чей ход»')}">×</button>`;
+  $('who').innerHTML=`<span class="k">${L('Whose turn','Чей ход')}</span>${st.who()}`;
   $('prev').disabled=step===0;
   $('prev').textContent=L('← Back','← Назад');
   $('next').textContent=step===STEPS.length-1?L('Next hand →','Новая раздача →'):L('Next step →','Дальше →');
@@ -708,8 +704,20 @@ const OPTS={
 };
 let openOpt=null,lastFocus=null;
 const P=a=>LANG==='ru'?a[1]:a[0];
+// The tapped player's card: what they do on the step that's showing
+function renderSeat(){
+  $('oKick').textContent=L(`Step ${step+1} of ${STEPS.length}`,`Шаг ${step+1} из ${STEPS.length}`)+' · '+STEPS[step].t();
+  $('oTitle').textContent=name(sel);
+  $('oLede').textContent=roles(sel)||L('No dealer button or blind this hand.','В этой раздаче без кнопки дилера и блайнда.');
+  $('oBody').innerHTML=`<div class="osec"><div class="k">${L('What you do','Что вы делаете')}</div><p>${seatTxt(sel)}</p></div>`;
+  $('oOk').textContent=L('Got it','Понятно');
+  $('oclose').setAttribute('aria-label',L('Close','Закрыть'));
+}
 function renderOpt(){
-  if(!openOpt)return;const o=OPTS[openOpt];
+  if(!openOpt)return;
+  $('ocard').classList.toggle('short',openOpt==='seat');
+  if(openOpt==='seat'){renderSeat();return}
+  const o=OPTS[openOpt];
   $('oKick').textContent=L('Your options','Что можно сделать');
   $('oTitle').textContent=P(o.t);
   $('oLede').textContent=P(o.l);
@@ -722,7 +730,7 @@ function openDetails(k){$("oBody").scrollTop=0;
   $('omodal').classList.add('show');document.body.style.overflow='hidden';$('oOk').focus({preventScroll:true});$('ocard').scrollTop=0;$('oBody').scrollTop=0;requestAnimationFrame(()=>{$('oBody').scrollTop=0});
 }
 function closeDetails(){
-  if(!openOpt)return;openOpt=null;
+  if(!openOpt)return;if(openOpt==='seat'){sel=null;render()}openOpt=null;
   $('omodal').classList.remove('show');document.body.style.overflow='';
   if(lastFocus)lastFocus.focus();
 }
@@ -765,8 +773,7 @@ $('lang').onclick=e=>{const b=e.target.closest('[data-lang]');if(!b||b.dataset.l
 
 $('np').onclick=e=>{const b=e.target.closest('[data-n]');if(!b)return;n=+b.dataset.n;btn=0;step=0;render()};
 $('moveBtn').onclick=()=>{btn=(btn+1)%n;render()};
-$('table').onclick=e=>{const s=e.target.closest('[data-seat]');if(!s)return;const i=+s.dataset.seat;sel=sel===i?null:i;render()};
-$('who').onclick=e=>{if(e.target.closest('#whoX')){sel=null;render()}};
+$('table').onclick=e=>{const s=e.target.closest('[data-seat]');if(!s)return;sel=+s.dataset.seat;render();openDetails('seat')};
 $('steps').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;step=+b.dataset.i;render()};
 $('prev').onclick=()=>{if(step>0){step--;render()}};
 $('next').onclick=()=>{if(step<STEPS.length-1)step++;else{btn=(btn+1)%n;step=0}render()};
