@@ -427,6 +427,7 @@ kbd{font:700 11px var(--mono);background:var(--p3);border:1px solid var(--line);
 
 /* ---------- Phone full screen ---------- */
 /* Fills the screen on phones that can't do real full screen (iPhone) */
+.timer-page.fake .modal{z-index:70}
 .timer-page.fake{position:fixed;inset:0;z-index:60;padding:0;min-height:0;background:var(--bg);display:block}
 body.fs-lock{overflow:hidden}
 /* While the phone timer covers the screen, stop drawing the page underneath */
@@ -435,6 +436,7 @@ body.fs-lock .nav,body.fs-lock main{visibility:hidden}
 /* Held upright: draw the timer sideways so it reads like landscape */
 @media (orientation:portrait){
   .timer-page.fake .clock{top:50%;left:50%;width:100vh;width:100dvh;height:100vw;transform:translate(-50%,-50%) rotate(90deg)}
+  .timer-page.fake .modal{inset:auto;top:50%;left:50%;width:100vh;width:100dvh;height:100vw;transform:translate(-50%,-50%) rotate(90deg)}
 }
 /* Landscape layout for the timer on phones. Sizes use vmin (the short side), so they match whether turned or drawn sideways. */
 .timer-page.tp-phone{padding:0}
@@ -801,7 +803,7 @@ function setLevel(i){
   render();
 }
 function ended(){
-  if(switchNext()){stop();$('modal').classList.add('show');beep(3);return}
+  if(switchNext()){stop();placeModal();$('modal').classList.add('show');beep(3);return}
   beep(1);setLevel(lvl<9?lvl+1:lvl);
 }
 // Count real elapsed time so the clock stays accurate when a phone throttles background tabs
@@ -836,8 +838,11 @@ function fsClasses(){
   const on=!!realFs()||fakeFs();
   $('timer').classList.toggle('tp-phone',on&&isPhone());
   document.body.classList.toggle('fs-lock',fakeFs());
+  placeModal();
   setTimeout(placeSides,60);
 }
+// Full screen only shows the timer, so the Big League alert has to live inside it while full screen is on
+function placeModal(){const m=$('modal'),host=realFs()||fakeFs()?$('timer'):document.body;if(m.parentNode!==host)host.appendChild(m)}
 function enterFake(){$('timer').classList.add('fake');fsClasses();location.hash='#timer';iosTip()}
 // iPhone Safari can't hide its own bars. Opening the site from the Home Screen can, so say so once.
 function iosTip(){

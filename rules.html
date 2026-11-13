@@ -105,6 +105,19 @@ h1 em{font-style:inherit;color:var(--y);display:block}
 .badge.bb{background:#1E5BD8;color:#fff}
 .seat.hl .av{background:var(--y);color:var(--ink);border-color:var(--y);box-shadow:0 0 0 6px rgba(255,225,0,.18),0 0 30px rgba(255,225,0,.4)}
 .seat.hl .nm{color:var(--y)}
+/* Tap a seat to see that player's options */
+button.seat>span{display:block}
+button.seat{background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button.seat:hover .av{border-color:rgba(255,255,255,.35)}
+.seat.sel .av{border-color:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.16)}
+.seat.hl.sel .av{border-color:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.5),0 0 30px rgba(255,225,0,.4)}
+.seat.sel .nm{color:#fff}
+.tap-hint{text-align:center;font:700 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-top:36px}
+.who{position:relative}
+.who.mine{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.3)}
+.who.mine .k{color:#fff;padding-right:28px}
+.who-x{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:8px;border:0;background:rgba(255,255,255,.08);color:#fff;font:700 16px/1 var(--mono);cursor:pointer}
+.who-x:hover{background:rgba(255,255,255,.18)}
 
 .steps{list-style:none;display:flex;gap:4px;flex-wrap:wrap;margin-bottom:18px}
 .steps button{font:800 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:7px 9px;border-radius:8px;border:1px solid var(--line);background:var(--p3);color:var(--mute)}
@@ -114,7 +127,7 @@ h1 em{font-style:inherit;color:var(--y);display:block}
 .stage-t{font:900 italic clamp(34px,5vw,48px)/.95 var(--display);text-transform:uppercase;margin-top:6px;min-height:1.9em}
 .stage-p{color:#DADAE2;font-size:16px;line-height:1.55;margin-top:12px;min-height:7.75em}
 .stage-p b{color:#fff}
-.who{margin-top:16px;padding:12px 14px;border-radius:10px;background:rgba(255,225,0,.1);border:1px solid rgba(255,225,0,.35);font-size:15px;line-height:1.45;min-height:94px}
+.who{margin-top:16px;padding:12px 14px;border-radius:10px;background:rgba(255,225,0,.1);border:1px solid rgba(255,225,0,.35);font-size:15px;line-height:1.45;min-height:120px}
 .who .k{color:var(--y);display:block;margin-bottom:4px}
 .nav-btns{display:flex;gap:8px;margin-top:auto;padding-top:22px;flex-wrap:wrap}
 .nav-btns .btn{min-width:150px}
@@ -235,6 +248,7 @@ footer a{color:var(--mute)}
       <div class="table" id="table">
         <div class="felt"><div class="felt-k" id="feltK">Table</div><div class="board" id="boardCards"></div></div>
       </div>
+      <div class="tap-hint">Tap a player to see what they can do</div>
     </div>
     <div>
       <ol class="steps" id="steps"></ol>
@@ -413,8 +427,51 @@ const STEPS=[
     first:()=>seat(1),who:()=>L(`${B(name(seat(1)))} is the next dealer. Press Next to see the next hand.`,`Следующий дилер — ${B(name(seat(1)))}. Нажмите «Дальше», чтобы увидеть следующую раздачу.`)}
 ];
 
+/* ---------- One player's view ---------- */
+// The tapped seat stays picked while you step through, so you can follow one player through the whole hand
+let sel=null;
+const gap=(i,from)=>((i-from)%n+n)%n+1;
+const ord=p=>p+(p===1?'st':p===2?'nd':p===3?'rd':'th');
+const actTxt=p=>p===1?L('You act <b>first</b>.','Вы ходите <b>первым</b>.'):p===n?L('You act <b>last</b>.','Вы ходите <b>последним</b>.'):L(`You act <b>${ord(p)}</b> of ${n}.`,`Вы ходите <b>${p}-м</b> из ${n}.`);
+const betTxt=i=>{const p=gap(i,postflopFirst());
+  return actTxt(p)+' '+(p===1
+    ?L('Nobody has bet yet, so <b>check</b> or <b>bet</b>.','Ставок ещё не было: <b>чек</b> или <b>бет</b>.')
+    :L('If nobody bet before you, <b>check</b> or <b>bet</b>. If someone did, <b>call</b>, <b>raise</b> or <b>fold</b>.','Если до вас не ставили: <b>чек</b> или <b>бет</b>. Если ставили: <b>уравнять</b>, <b>поднять</b> или <b>сбросить</b>.'))
+    +L(' Skip this if you folded.',' Если вы сбросили карты, вы пропускаете.')};
+const roles=i=>[i===btn?L('Dealer','Дилер'):'',i===sbSeat()?L('Small blind','Малый блайнд'):'',i===bbSeat()?L('Big blind','Большой блайнд'):''].filter(Boolean).join(' · ');
+function seatTxt(i){
+  const D=i===btn,SB=i===sbSeat(),BB=i===bbSeat();
+  switch(step){
+    case 0:return SB?L('Put in the <b>small blind</b> (half the big blind) before any cards are dealt.','Поставьте <b>малый блайнд</b> (половину большого) до раздачи карт.')
+      :BB?L('Put in the <b>big blind</b> before any cards are dealt.','Поставьте <b>большой блайнд</b> до раздачи карт.')
+      :D?L('No blind for you this hand. Shuffle and get ready to deal.','В этой раздаче блайнд не ставите. Перемешайте карты и готовьтесь раздавать.')
+      :L('Nothing to put in this hand. Only the two blinds pay.','В этой раздаче ставить ничего не нужно. Платят только блайнды.');
+    case 1:return D?L(`You deal, one card at a time to the left, starting with ${B(name(seat(1)))}. You get the <b>last</b> card each time round.`,`Вы раздаёте по одной карте влево, начиная с игрока ${B(name(seat(1)))}. Вам достаётся <b>последняя</b> карта в каждом круге.`)
+      :L('You get <b>two cards</b>. Look at them, but keep them hidden.','Вам приходят <b>две карты</b>. Смотрите на них, но никому не показывайте.');
+    case 2:{const a=actTxt(gap(i,preflopFirst()));
+      if(BB)return a+' '+(n===2
+        ?L('If the dealer only called, <b>check</b> or <b>raise</b>. If they raised, <b>call</b>, <b>raise</b> or <b>fold</b>.','Если дилер только уравнял: <b>чек</b> или <b>поднять</b>. Если поднял: <b>уравнять</b>, <b>поднять</b> или <b>сбросить</b>.')
+        :L('If nobody raised, <b>check</b> (your blind already counts) or <b>raise</b>. If someone raised, <b>call</b>, <b>raise</b> or <b>fold</b>.','Если никто не поднимал: <b>чек</b> (ваш блайнд уже считается) или <b>поднять</b>. Если поднимали: <b>уравнять</b>, <b>поднять</b> или <b>сбросить</b>.'));
+      if(SB)return a+' '+L('Half a bet is already in. Add the other half to <b>call</b>, or <b>raise</b>, or <b>fold</b>.','Половина ставки уже на столе. Добавьте вторую половину, чтобы <b>уравнять</b>, или <b>поднимите</b>, или <b>сбросьте</b>.');
+      return a+' '+L('The big blind counts as a bet, so no checking: <b>call</b>, <b>raise</b> or <b>fold</b>.','Большой блайнд считается ставкой, поэтому чек нельзя: <b>уравнять</b>, <b>поднять</b> или <b>сбросить</b>.')}
+    case 3:return D?L('Put the top card aside face down (the burn card), then turn <b>three cards</b> face up in the middle.','Отложите верхнюю карту рубашкой вверх (сожгите), потом откройте <b>три карты</b> в центре.')
+      :L('Nothing to do. Watch the three cards come out. You can use them too.','Ничего делать не нужно. Смотрите на три открытые карты: ими можно пользоваться всем.');
+    case 4:return betTxt(i);
+    case 5:case 6:return (D?L(`First burn one and turn the <b>${step===5?'fourth':'fifth'} card</b>. `,`Сначала сожгите карту и откройте <b>${step===5?'четвёртую':'пятую'}</b>. `):'')+betTxt(i);
+    case 7:{const p=gap(i,postflopFirst());
+      return L(`If you're still in, show your two cards. If everyone checked the river, you show <b>${p===1?'first':ord(p)}</b>. Lost? You can throw your cards away face down.`,`Если вы ещё в игре, откройте свои две карты. Если на ривере все чекнули, вы открываетесь <b>${p===1?'первым':p+'-м'}</b>. Проиграли? Можно сбросить карты рубашкой вверх.`)}
+    case 8:{const nb=seat(1),nsb=n===2?nb:seat(2),nbb=n===2?seat(2):seat(3);
+      return i===nb&&i===nsb?L('You\'re the <b>new dealer</b>, and with two players you also post the <b>small blind</b>.','Вы <b>новый дилер</b>, а вдвоём вы ещё и ставите <b>малый блайнд</b>.')
+      :i===nb?L('You\'re the <b>new dealer</b>. Shuffle and deal the next hand.','Вы <b>новый дилер</b>. Перемешайте и раздайте следующую раздачу.')
+      :i===nsb?L('You post the <b>small blind</b> next hand.','В следующей раздаче вы ставите <b>малый блайнд</b>.')
+      :i===nbb?L('You post the <b>big blind</b> next hand.','В следующей раздаче вы ставите <b>большой блайнд</b>.')
+      :L('No blind next hand. Enjoy the break.','В следующей раздаче блайнд не ставите. Отдыхайте.')}
+  }
+}
+
 function render(){
   const st=STEPS[step],f=st.first();
+  if(sel!==null&&sel>=n)sel=null;
   document.querySelectorAll('#np .pill').forEach(b=>b.classList.toggle('on',+b.dataset.n===n));
   // seats
   const t=$('table');t.querySelectorAll('.seat').forEach(e=>e.remove());
@@ -424,10 +481,12 @@ function render(){
     if(i===btn)b.push(`<span class="badge d">D</span>`);
     if(i===sbSeat())b.push(`<span class="badge sb">SB</span>`);
     if(i===bbSeat())b.push(`<span class="badge bb">BB</span>`);
-    const el=document.createElement('div');
-    el.className='seat'+(i===f?' hl':'');
+    const el=document.createElement('button');
+    el.type='button';el.dataset.seat=i;
+    el.className='seat'+(i===f?' hl':'')+(i===sel?' sel':'');
+    el.setAttribute('aria-pressed',i===sel);
     el.style.left=x+'%';el.style.top=y+'%';
-    el.innerHTML=`<div class="av">${i+1}</div><div class="nm">${name(i)}</div><div class="chips">${b.join('')}</div>`;
+    el.innerHTML=`<span class="av">${i+1}</span><span class="nm">${name(i)}</span><span class="chips">${b.join('')}</span>`;
     t.appendChild(el);
   }
   // board
@@ -438,7 +497,10 @@ function render(){
   $('stageK').textContent=L(`Step ${step+1} of ${STEPS.length}`,`Шаг ${step+1} из ${STEPS.length}`);
   $('stageT').textContent=st.t();
   $('stageP').innerHTML=st.p();
-  $('who').innerHTML=`<span class="k">${L('Whose turn','Чей ход')}</span>${st.who()}`;
+  const w=$('who');w.classList.toggle('mine',sel!==null);
+  w.innerHTML=sel===null
+    ?`<span class="k">${L('Whose turn','Чей ход')}</span>${st.who()}`
+    :`<span class="k">${name(sel)}${roles(sel)?' · '+roles(sel):''}</span>${seatTxt(sel)}<button class="who-x" id="whoX" type="button" aria-label="${L('Back to whose turn','Назад к «Чей ход»')}">×</button>`;
   $('prev').disabled=step===0;
   $('prev').textContent=L('← Back','← Назад');
   $('next').textContent=step===STEPS.length-1?L('Next hand →','Новая раздача →'):L('Next step →','Дальше →');
@@ -452,6 +514,7 @@ const RU={
   'House':'Правила','Rules':'Правила','Timer':'Таймер',
   'Every rule for Turbo Poker in one place. Start with the table below: step through a hand and it shows who deals, who posts the blinds, and whose turn it is at each point.':'Все правила Turbo Poker в одном месте. Начните со стола ниже: пройдите раздачу по шагам, и он покажет, кто сдаёт, кто ставит блайнды и чей сейчас ход.',
   'How a hand goes':'Как идёт раздача','Tap through the steps. The yellow seat goes first.':'Нажимайте на шаги. Жёлтый игрок ходит первым.',
+  'Tap a player to see what they can do':'Нажмите на игрока, чтобы увидеть его ходы',
   'Players':'Игроки','Dealer button':'Фишка дилера','Move one seat left ↻':'Сдвинуть на место влево ↻',
   'When it\'s your turn':'Когда ваш ход','You get one of these each time the action reaches you':'Каждый раз, когда очередь доходит до вас, выберите одно из этого',
   'Your options':'Что можно сделать','What you can do depends on whether anyone has bet yet in this round.':'Что можно сделать, зависит от того, ставил ли кто-нибудь в этом круге.',
@@ -702,6 +765,8 @@ $('lang').onclick=e=>{const b=e.target.closest('[data-lang]');if(!b||b.dataset.l
 
 $('np').onclick=e=>{const b=e.target.closest('[data-n]');if(!b)return;n=+b.dataset.n;btn=0;step=0;render()};
 $('moveBtn').onclick=()=>{btn=(btn+1)%n;render()};
+$('table').onclick=e=>{const s=e.target.closest('[data-seat]');if(!s)return;const i=+s.dataset.seat;sel=sel===i?null:i;render()};
+$('who').onclick=e=>{if(e.target.closest('#whoX')){sel=null;render()}};
 $('steps').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;step=+b.dataset.i;render()};
 $('prev').onclick=()=>{if(step>0){step--;render()}};
 $('next').onclick=()=>{if(step<STEPS.length-1)step++;else{btn=(btn+1)%n;step=0}render()};
