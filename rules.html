@@ -216,6 +216,22 @@ footer a{color:var(--mute)}
   .nav-btns .btn,.nav-btns #next{flex:1;min-width:0}
 }
 @media print{.nav,.nav-btns,.opts{display:none!important}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+/* Phone header: full title, a short way back to the game */
+@media (max-width:760px){
+  .logo span{display:inline}
+  .backlink{font-size:0;padding:9px 14px}
+  .backlink::before{content:"← Game";font-size:14px}
+  html[lang=ru] .backlink::before{content:"← К игре"}
+}
+@media (max-width:400px){
+  .logo b,.logo span{font-size:19px}.logo b{padding:5px 11px 4px}.logo{gap:6px}
+  .backlink{padding:8px 11px}
+}
+/* Desktop: the tapped player shows in the Whose turn box */
+.who.mine{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.3)}
+.who.mine .k{color:#fff;padding-right:28px}
+.who-x{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:8px;border:0;background:rgba(255,255,255,.08);color:#fff;font:700 16px/1 var(--mono);cursor:pointer}
+.who-x:hover{background:rgba(255,255,255,.18)}
 </style>
 </head>
 <body>
@@ -496,7 +512,10 @@ function render(){
   $('stageK').textContent=L(`Step ${step+1} of ${STEPS.length}`,`Шаг ${step+1} из ${STEPS.length}`);
   $('stageT').textContent=st.t();
   $('stageP').innerHTML=st.p();
-  $('who').innerHTML=`<span class="k">${L('Whose turn','Чей ход')}</span>${st.who()}`;
+  const mine=sel!==null&&!phoneUI(),w=$('who');w.classList.toggle('mine',mine);
+  w.innerHTML=!mine
+    ?`<span class="k">${L('Whose turn','Чей ход')}</span>${st.who()}`
+    :`<span class="k">${name(sel)}${roles(sel)?' · '+roles(sel):''}</span>${seatTxt(sel)}<button class="who-x" id="whoX" type="button" aria-label="${L('Back to whose turn','Назад к «Чей ход»')}">×</button>`;
   $('prev').disabled=step===0;
   $('prev').textContent=L('← Back','← Назад');
   $('next').textContent=step===STEPS.length-1?L('Next hand →','Новая раздача →'):L('Next step →','Дальше →');
@@ -773,7 +792,11 @@ $('lang').onclick=e=>{const b=e.target.closest('[data-lang]');if(!b||b.dataset.l
 
 $('np').onclick=e=>{const b=e.target.closest('[data-n]');if(!b)return;n=+b.dataset.n;btn=0;step=0;render()};
 $('moveBtn').onclick=()=>{btn=(btn+1)%n;render()};
-$('table').onclick=e=>{const s=e.target.closest('[data-seat]');if(!s)return;sel=+s.dataset.seat;render();openDetails('seat')};
+// Phones open the player as a pop-up card; bigger screens show it in the Whose turn box
+const phoneUI=()=>matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<=600;
+$('table').onclick=e=>{const s=e.target.closest('[data-seat]');if(!s)return;const i=+s.dataset.seat;
+  if(phoneUI()){sel=i;render();openDetails('seat')}else{sel=sel===i?null:i;render()}};
+$('who').onclick=e=>{if(e.target.closest('#whoX')){sel=null;render()}};
 $('steps').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;step=+b.dataset.i;render()};
 $('prev').onclick=()=>{if(step>0){step--;render()}};
 $('next').onclick=()=>{if(step<STEPS.length-1)step++;else{btn=(btn+1)%n;step=0}render()};

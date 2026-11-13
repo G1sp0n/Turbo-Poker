@@ -468,6 +468,22 @@ body.fs-lock .nav,body.fs-lock main{visibility:hidden}
 .timer-page.tp-phone .mc i{font-size:2.5vmin;margin-top:.2vmin}
 /* Phones: drop the costly blur on the moving arcs; they still look soft */
 .timer-page.tp-phone .sweep::before{filter:saturate(1.25)}
+/* Phone header: full title and Rules only. The timer has its own full-screen button. */
+@media (max-width:760px){
+  .tabs{display:flex;margin-left:0}.tabs a[href="#timer"]{display:none}
+  .live{display:none}
+  .logo span{display:inline}
+  .lang{margin-left:auto}
+}
+@media (max-width:400px){
+  .logo b,.logo span{font-size:19px}.logo b{padding:5px 11px 4px}.logo{gap:6px}
+  .tabs a{padding:8px 6px;font-size:14px}.tabs a::after{left:6px;right:6px}
+}
+/* Android real full screen draws a little bigger than the iPhone one, so its cards shrink to clear the buttons */
+.timer-page.tp-phone:not(.fake) .tside{gap:1.6vmin}
+.timer-page.tp-phone:not(.fake) .tside li b{font-size:2.5vmin}
+.timer-page.tp-phone:not(.fake) .mc{width:4.5vmin;height:6.2vmin;font-size:2.1vmin;border-radius:.8vmin}
+.timer-page.tp-phone:not(.fake) .mc i{font-size:2.2vmin}
 </style>
 </head>
 <body>
