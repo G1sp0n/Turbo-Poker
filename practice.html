@@ -338,7 +338,8 @@ body:not(.v-play) .v-play,body:not(.v-charts) .v-charts,body:not(.v-drills) .v-d
 @media (max-width:600px){.drill{padding:16px}.dbar{padding:12px 14px}.dq h3{font-size:26px}.dboard{margin-left:0}}
 /* Bigger chart */
 body.v-charts .wrap{max-width:1320px}
-.sbody{grid-template-columns:minmax(0,1fr) 300px;gap:24px}
+/* Grid + side panel next to each other only on wide screens; narrower screens stack them */
+@media (min-width:821px){.sbody{grid-template-columns:minmax(0,1fr) 300px;gap:24px}}
 .grid{gap:3px}
 .gc{font-size:clamp(9px,1.05vw,15px);border-radius:4px}
 .gc span{padding:6px 0 0 6px}
@@ -498,7 +499,9 @@ html[lang=ru] .dacts .btn{font-size:15px}
   .gc{aspect-ratio:1;border-radius:2px;min-width:0;min-height:0}
   .gc span{display:none}
   .gc.pick{outline-width:2px}
-  .sbody{gap:12px;margin-top:10px}
+  .sbody{grid-template-columns:minmax(0,1fr);gap:12px;margin-top:10px}
+  .grid{width:100%}
+  .side{position:static}
   /* Situation | board + pot, then the actions; tapping a hand swaps the actions for its stats */
   .side{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"k board" "t board" "sum sum";gap:4px 10px}
   #sum{grid-area:sum;margin-top:6px}
