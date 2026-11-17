@@ -491,7 +491,6 @@ body.fs-lock .nav,body.fs-lock main{visibility:hidden}
 /* Hidden on bigger screens: only the phone layout uses these */
 .hlinks .rl,.fs-quick{display:none}
 .hlinks{display:flex;gap:8px;flex-wrap:wrap}
-/* ---------- Phone layout: sections paired side by side so more fits on one screen ---------- */
 @media (max-width:760px){
   /* Header slides away while scrolling down and comes back when scrolling up */
   .nav{transition:transform .25s ease}
@@ -499,25 +498,11 @@ body.fs-lock .nav,body.fs-lock main{visibility:hidden}
   /* Covers the status bar and Dynamic Island once the header is gone */
   body::after{content:"";position:fixed;left:0;right:0;top:0;height:env(safe-area-inset-top);background:var(--bg);z-index:30;pointer-events:none}
 }
+/* ---------- Phone layout ---------- */
 @media (max-width:600px){
-  main.wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 8px;align-items:start}
-  main.wrap > *{grid-column:1 / -1;min-width:0}
-  main.wrap > .row{display:contents}
-  /* Order: links + players/timer, live board, ladder | each player gets, Big League | side pots, then hands and cheat sheet */
-  #setup{order:1}.status{order:2}
-  #ladderSec{order:3;grid-column:1}#chips{order:4;grid-column:2}
-  #ladder{order:5;grid-column:1;align-self:stretch}.card.each{order:6;grid-column:2;align-self:stretch}
-  .card.cu{order:7;grid-column:1;grid-row:span 3;align-self:stretch}
-  #pots{order:8;grid-column:2}.sp-who{order:9;grid-column:2}.sp-potsc{order:10;grid-column:2}
-  #hands{order:11}.hands-card{order:12}#rules{order:13}.cheat-card{order:14}
-  /* Section titles in a half-width column */
-  #ladderSec,#chips,#pots{margin-top:6px}
-  #ladderSec h2,#chips h2,#pots h2{font-size:20px}
-  #ladderSec .num,#chips .num,#pots .num{margin-right:6px;font-size:10px;padding:2px 6px}
-  .sec .hint{display:none}
   /* Hero: links side by side, then players | full-screen timer */
   .hlinks{flex-wrap:nowrap}
-  .hlinks .prac-link{flex:1;text-align:center;font-size:11px;padding:9px 6px;margin-top:12px;letter-spacing:.03em}
+  .hlinks .prac-link{flex:1;text-align:center;font-size:12px;padding:10px 6px;margin-top:12px;letter-spacing:.04em}
   .hlinks .rl{display:block}
   .pick{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:8px;align-items:stretch}
   .pick .seg-label{grid-column:1 / -1;margin-bottom:0}
@@ -526,25 +511,25 @@ body.fs-lock .nav,body.fs-lock main{visibility:hidden}
   .seg button small{display:none}
   .fs-quick{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:0;border-radius:12px;background:var(--y);color:var(--ink);font:900 italic 15px/1.05 var(--display);text-transform:uppercase;letter-spacing:.02em;padding:8px;text-align:center}
   .fs-quick b{font-size:22px;font-style:normal}
-  /* Half-width cards */
-  .card.each,.card.cu,.sp-who,.sp-potsc{padding:14px}
-  .card.each h3,.card.cu h3,.sp-who h3,.sp-potsc h3{font-size:17px;line-height:1.05}
-  .card.cu .sub,.sp-who .sub,.sp-potsc .sub{font-size:11px;line-height:1.35}
-  .card.each .total,.card.cu .total{font-size:40px;margin:8px 0 10px}
-  .card.cu .pills{gap:3px;padding:3px}.card.cu .pill{padding:7px 8px;font-size:12px}
-  .cu .field{margin:10px 0 8px;gap:6px}.cu input{font-size:26px;padding:2px 8px}.cu .arrow-ico{font-size:20px}
-  /* Blind ladder as a 2-column list */
-  #ladder{grid-template-columns:repeat(2,minmax(0,1fr));padding:6px;gap:4px}
-  #ladder .step{padding:7px 2px 8px}
-  #ladder .step .b{font-size:16px}
-  /* Side pots: name on top, then chips + fold */
-  .sp-head{display:none}
-  .sp-row{grid-template-columns:minmax(0,1fr) auto;gap:5px}
-  .sp-row > :first-child{grid-column:1 / -1}
-  .sp-row input{padding:7px 9px;font-size:14px}
-  .sp-row input.amt{font-size:18px;padding:4px 8px}
-  .sp-tools .pill{padding:6px 8px;font-size:11px}
-  .sp-total .total{font-size:30px}
+  /* Live game board: timer on top, players left on the left, Out / Undo on the right under your thumb */
+  .status{grid-template-columns:minmax(0,1fr);grid-template-areas:"board" "mini" "trig"}
+  .status > *{padding:16px}
+  .status > * + *{border-left:0}
+  .status .board{grid-area:board;border-bottom:1px solid var(--line)}
+  .status .mini{grid-area:mini;display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"k k ctr" "alive of ctr";align-items:center;text-align:left;gap:0 10px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.025)}
+  .status .mini .k{grid-area:k}
+  .status .mini .alive{grid-area:alive;font-size:52px;line-height:.9;margin:0}
+  .status .mini .alive-of{grid-area:of;align-self:end;margin:0 0 6px}
+  .status .mini .ctr{grid-area:ctr;margin:0;gap:8px}
+  .status .mini .ctr button{width:68px;height:62px;flex-direction:column;justify-content:center;gap:3px;padding:0}
+  .status .trigger{grid-area:trig;border-top:0!important;font-size:13px;padding:12px 16px}
+  .status .trigger b{font-size:17px;margin-bottom:2px}
+  /* Clear dividers between sections */
+  .sec{border-top:1px solid var(--line);padding-top:16px;margin-top:8px}
+  .panel{background:linear-gradient(180deg,#202026,#18181D)}
+  .row > .panel:nth-child(2),.cheat-card,.hands-card{background:linear-gradient(180deg,#1A1A1F,#141418)}
+  .card h3{padding-bottom:10px;margin-bottom:12px;border-bottom:1px solid var(--line)}
+  .card .sub{margin-top:-6px;margin-bottom:10px}
   /* Bottom buttons are now in the hero */
   .cheat-card .rules-btn{display:none}
 }
@@ -575,7 +560,7 @@ body.fs-lock .nav,body.fs-lock main{visibility:hidden}
     <div>
       <h1>Turbo<em>Poker</em></h1>
       <p class="lede">Short levels and fast blinds. You start in the Low League with small chips, then switch to the Big League and play until one player has every chip.</p>
-      <div class="hlinks"><a class="prac-link" href="practice.html">Practice against the computer →</a><a class="prac-link rl" href="rules.html">Full rules →</a></div>
+      <div class="hlinks"><a class="prac-link" href="practice.html">Practice →</a><a class="prac-link rl" href="rules.html">Full rules →</a></div>
     </div>
     <div class="pick">
       <div class="k seg-label">How many players?</div>
@@ -1105,7 +1090,7 @@ const RU={
   'When a split pot doesn\'t divide evenly, the extra chip goes to the winner closest to the left of the button. The calculator does this for you.':'Если банк не делится поровну, лишняя фишка достаётся победителю, который сидит ближе всех слева от баттона. Калькулятор считает это сам.',
   'Full rules and whose turn it is →':'Все правила и чей ход →',
   'Practice against the computer →':'Сыграть с компьютером →','Practice':'Практика',
-  'Full rules →':'Правила →','Full-screen timer':'Таймер на весь экран',
+  'Practice →':'Практика →','Full rules →':'Правила →','Full-screen timer':'Таймер на весь экран',
   '↑ Setup':'↑ Настройка','Sound on/off (M)':'Звук вкл/выкл (M)','Full screen (F)':'Весь экран (F)','Turn sound on or off':'Включить или выключить звук',
   'Blinds':'Блайнды','Reset':'Заново','Adjust':'Время','−1 min':'−1 мин','+1 min':'+1 мин','Level length':'Длина уровня','min':'мин',
   'Players':'Игроки','Played':'Сыграно',

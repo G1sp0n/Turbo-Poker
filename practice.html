@@ -461,6 +461,68 @@ html[lang=ru] .dacts .btn{font-size:15px}
   .mt .mtf .k{font-size:8px}.mt .mtf b{font-size:13px}
   .mdb{font-size:7px;padding:1px 3px;right:-6px}
 }
+.cx{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:8px;border:0;background:rgba(255,255,255,.1);color:#fff;font:700 16px/1 var(--mono)}
+.cinfo{position:relative}
+@media (max-width:600px){
+  /* ---- Play: a smaller table so the buttons fit on one screen ---- */
+  .ptable{aspect-ratio:1.45;margin:30px auto 26px}
+  .felt{inset:15% 15%;gap:5px;border-width:5px}
+  .board{gap:3px;min-height:40px}
+  .pc{width:28px;height:40px;font-size:12px;border-radius:5px}
+  .pc i{font-size:12px}
+  .pot{font-size:14px;padding:4px 10px}
+  .felt-k{font-size:8px}
+  .ps{width:70px}
+  .ps .pav{width:32px;height:32px;font-size:14px;border-width:2px}
+  .ps.you .pav{font-size:9px}
+  .ps .pnm{font-size:9px;margin-top:2px}
+  .ps .pst{font-size:11px}
+  .ps .pbub{font-size:9px;padding:2px 5px;margin-top:2px;min-height:15px}
+  .ps .pbg{left:calc(100% + 2px)}
+  .badge{font-size:7px;padding:1px 3px}
+  /* Face-down cards and your own cards are hidden on the table; you see yours below */
+  .ps .pcards:has(.back),.ps.you .pcards{display:none}
+  .ps .pcards{height:auto;margin-bottom:3px}
+  .ps .pcards .pc.sm{width:20px;height:28px;font-size:9px}
+  .dock{padding:12px}
+  .mine .cards{min-height:0}
+  .pc.lg{width:46px;height:64px;font-size:18px}
+  .pc.lg i{font-size:18px}
+  .raise{padding:8px;gap:6px}
+  .abtns .btn{padding:12px 6px}
+  .logp ol{max-height:180px}
+
+  /* ---- Charts ---- */
+  /* Grid: colour bars only, every cell square */
+  .grid{aspect-ratio:auto;grid-auto-rows:auto;gap:1px;margin:0}
+  .gc{aspect-ratio:1;border-radius:2px;min-width:0;min-height:0}
+  .gc span{display:none}
+  .gc.pick{outline-width:2px}
+  .sbody{gap:12px;margin-top:10px}
+  /* Situation | board + pot, then the actions; tapping a hand swaps the actions for its stats */
+  .side{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"k board" "t board" "sum sum";gap:4px 10px}
+  #sum{grid-area:sum;margin-top:6px}
+  #cinfo{grid-area:sum;display:none;margin-top:6px;font-size:13px;padding:14px}
+  .side.picked #sum{display:none}
+  .side.picked #cinfo{display:block}
+  .cinfo h4{font-size:22px}.cinfo .row{font-size:13px;padding:2px 0}
+  .sa{padding:10px;font-size:13px}.sa em{font-size:13px}.sa small{font-size:10px}
+  #sBoard{align-self:center}
+  #sBoard .k{font-size:9px}
+  .sbcards .pc.sm{width:24px;height:34px;font-size:10px}
+  .snote.foot{display:none}
+
+  /* ---- Clear dividers between the parts of each tab ---- */
+  .gbar,.dbar{background:#141418;border-radius:16px 16px 0 0}
+  .dock{background:#1C1C22;border-top:1px solid var(--line)}
+  .logp{background:#141418}
+  .sbar{padding-bottom:12px;border-bottom:1px solid var(--line)}
+  .tline{margin:12px -14px 0;padding:10px 14px;background:#141418;border-bottom:1px solid var(--line)}
+  .side{padding:12px;border-radius:12px;background:#141418;border:1px solid var(--line)}
+  .drill{background:#1C1C22;border-radius:0 0 16px 16px}
+  .dq{padding-bottom:12px;border-bottom:1px solid var(--line)}
+  .dq > .dhist{border-top:1px solid var(--line);padding-top:10px}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
@@ -841,7 +903,7 @@ function botAct(i){
 /* ---------- Drawing ---------- */
 function seatPos(k,n){
   const phone=matchMedia('(max-width:600px)').matches,a=Math.PI/2+k*2*Math.PI/n;
-  const rx=phone?38:45,ry=phone?38:41,bx=27,by=19;
+  const rx=phone?43:45,ry=phone?39:41,bx=27,by=19;
   return {x:50+rx*Math.cos(a),y:50+ry*Math.sin(a),bx:50+bx*Math.cos(a),by:50+by*Math.sin(a)};
 }
 function bubble(p){
@@ -1321,7 +1383,10 @@ function renderStrat(){
   else if(needBoard)tl.push(`<button class="tl now" data-pick="1"><div class="k">${P(SNAME[S2.street+1])}</div><b>${L('Pick cards','Выбрать')}</b></button>`);
   if(!S2)g.pos.forEach((p,q)=>{if(!g.acted[q]&&q!==g.turn&&!g.folded[q])tl.push(`<button class="tl wait" disabled><div class="k">${p}</div><b>…</b></button>`)});
   $('tline').innerHTML=tl.join('');
-  const tle=$('tline');tle.scrollLeft=tle.scrollWidth;
+  const tle=$('tline'),nowEl=tle.querySelector('.now');
+  // Start at the left; after you tap something, keep the current step in view
+  if(SCact&&nowEl)tle.scrollLeft=Math.max(0,nowEl.offsetLeft+nowEl.offsetWidth-tle.clientWidth+8);else if(!SCact)tle.scrollLeft=0;
+  SCact=false;
   $('sBoard').innerHTML=S2&&S2.board.length?`<div class="k">${L('Board','Стол')} · ${L('Pot','Банк')} ${half(S2.pot)} bb</div><div class="sbcards">${S2.board.map(c=>cardHTML(c,'sm')).join('')}</div>`:g.turn>=0?`<div class="k">${L('Pot','Банк')} ${half(g.pot)} bb</div>`:'';
   // Nothing left to decide
   if(turnQ<0&&!needBoard){
@@ -1340,7 +1405,7 @@ function renderStrat(){
     $('spotT').textContent=L(`Choose the ${nm.toLowerCase()}`,`Выберите ${S2.street===0?'флоп':S2.street===1?'тёрн':'ривер'}`);
     $('sum').innerHTML=`<button class="btn main" id="sPick">${L(S2.need===3?'Pick 3 cards →':'Pick 1 card →',S2.need===3?'Выбрать 3 карты →':'Выбрать 1 карту →')}</button><button class="btn" id="sRand">${L('Random','Случайно')}</button>`;
     $('grid').innerHTML='';$('cinfo').innerHTML=L('Pick the cards yourself, or let the deck choose.','Выберите карты сами или доверьтесь колоде.');
-    $('sPick').onclick=()=>openPicker(S2);$('sRand').onclick=()=>{SC.ev.push({t:'board',cards:randCards(S2.board,S2.need)});saveSC();renderStrat()};
+    $('sPick').onclick=()=>openPicker(S2);$('sRand').onclick=()=>{SCact=true;SC.ev.push({t:'board',cards:randCards(S2.board,S2.need)});saveSC();renderStrat()};
     const ak=JSON.stringify([SC.seq,SC.ev]);if(SCauto!==ak){SCauto=ak;setTimeout(()=>openPicker(S2),60)}
     return;
   }
@@ -1364,11 +1429,14 @@ function renderStrat(){
   $('grid').innerHTML=H169.map((h,i)=>`<button class="gc${SCpick===i?' pick':''}" data-h="${i}" style="background:${cellBg(cur.fr[i],cur.acts,maxW?wts[i]/maxW:0)}"><span>${h.label}</span></button>`).join('');
   showCell(SCpick);
 }
+let SCact=false;
 function showCell(i){
+  // Phones swap the action list for the tapped hand, with a × to go back
+  $('sum').parentNode.classList.toggle('picked',SCpick!=null);
   const c=SC.cur;if(!c)return;
   if(i==null){$('cinfo').innerHTML=L('Hover or tap a hand to see how often to play it each way.','Наведите или нажмите на руку, чтобы увидеть, как часто играть её каждым способом.');return}
   const h=H169[i],fr=c.fr[i],w=c.reach[i]*(c.avail?c.avail[i]:1);
-  $('cinfo').innerHTML=`<h4>${h.label}</h4>`+(w<=0?(c.avail&&!c.avail[i]?L('The board blocks every combo of this hand.','Карты на столе блокируют все комбинации этой руки.'):L('This hand isn\'t in this player\'s range anymore: they would have played it differently earlier.','Этой руки уже нет в диапазоне игрока: раньше её сыграли бы иначе.'))
+  $('cinfo').innerHTML=(SCpick!=null?`<button class="cx" id="cX" aria-label="${L('Close','Закрыть')}">×</button>`:'')+`<h4>${h.label}</h4>`+(w<=0?(c.avail&&!c.avail[i]?L('The board blocks every combo of this hand.','Карты на столе блокируют все комбинации этой руки.'):L('This hand isn\'t in this player\'s range anymore: they would have played it differently earlier.','Этой руки уже нет в диапазоне игрока: раньше её сыграли бы иначе.'))
     :c.acts.slice().reverse().map(a=>`<div class="row"><span style="color:${AC[a]}">${P(AN[a])}</span><span>${Math.round((fr[a]||0)*100)}%</span></div>`).join('')
     +(c.post?`<div class="row" style="margin-top:6px"><span>${L('Chance to win','Шанс выиграть')}</span><span>${Math.round(c.nd.eq[i]*100)}%</span></div>`:'')
     +`<div class="row" style="color:var(--mute);margin-top:6px"><span>${L('Combos','Комбинаций')}</span><span>${c.avail?c.avail[i]:h.combos}</span></div>`);
@@ -1392,19 +1460,19 @@ const closePicker=()=>$('cpick').classList.remove('show');
 $('cpGrid').onclick=e=>{const b=e.target.closest('[data-c]');if(!b||b.disabled)return;const c=+b.dataset.c,i=PK.sel.indexOf(c);
   if(i>=0)PK.sel.splice(i,1);else if(PK.sel.length<PK.need)PK.sel.push(c);else{PK.sel.shift();PK.sel.push(c)}drawPicker()};
 $('cpRand').onclick=()=>{PK.sel=randCards([...PK.dead],PK.need);drawPicker()};
-$('cpOk').onclick=()=>{if(PK.sel.length!==PK.need)return;SC.ev.push({t:'board',cards:PK.sel.slice()});saveSC();closePicker();renderStrat()};
+$('cpOk').onclick=()=>{if(PK.sel.length!==PK.need)return;SCact=true;SC.ev.push({t:'board',cards:PK.sel.slice()});saveSC();closePicker();renderStrat()};
 $('cpX').onclick=closePicker;
 $('cpick').onclick=e=>{if(e.target===$('cpick'))closePicker()};
 
 $('sPl').onclick=e=>{const b=e.target.closest('[data-n]');if(!b)return;SC.n=+b.dataset.n;SC.seq=[];SC.ev=[];saveSC();renderStrat()};
 $('sSt').onclick=e=>{const b=e.target.closest('[data-s]');if(!b)return;SC.st=+b.dataset.s;SC.seq=[];SC.ev=[];saveSC();renderStrat()};
-$('tline').onclick=e=>{
+$('tline').onclick=e=>{SCact=true;
   const b=e.target.closest('[data-back]'),pb=e.target.closest('[data-pback]'),pk=e.target.closest('[data-pick]');
   if(b){SC.seq=SC.seq.slice(0,+b.dataset.back);SC.ev=[];SCauto='';saveSC();renderStrat()}
   else if(pb){SC.ev=SC.ev.slice(0,+pb.dataset.pback);SCauto='';saveSC();renderStrat()}
   else if(pk){SCauto='';renderStrat()}
 };
-$('sum').onclick=e=>{const b=e.target.closest('[data-a]');if(!b||!SC.cur)return;
+$('sum').onclick=e=>{const b=e.target.closest('[data-a]');if(!b||!SC.cur)return;SCact=true;
   if(SC.cur.post)SC.ev.push({t:'act',p:SC.cur.q,a:b.dataset.a});else SC.seq.push({p:SC.cur.q,a:b.dataset.a});
   saveSC();renderStrat()};
 $('sum').onmouseover=e=>{const b=e.target.closest('[data-a]');if(!b||!SC.cur)return;const a=b.dataset.a;
@@ -1412,6 +1480,7 @@ $('sum').onmouseover=e=>{const b=e.target.closest('[data-a]');if(!b||!SC.cur)ret
 $('sum').onmouseleave=()=>document.querySelectorAll('#grid .gc').forEach(el=>el.classList.remove('dimmed'));
 $('grid').onmouseover=e=>{const b=e.target.closest('[data-h]');if(b)showCell(+b.dataset.h)};
 $('grid').onmouseleave=()=>showCell(SCpick);
+$('cinfo').onclick=e=>{if(!e.target.closest('#cX'))return;SCpick=null;document.querySelectorAll('#grid .gc').forEach(el=>el.classList.remove('pick'));showCell(null)};
 $('grid').onclick=e=>{const b=e.target.closest('[data-h]');if(!b)return;const i=+b.dataset.h;SCpick=SCpick===i?null:i;
   document.querySelectorAll('#grid .gc').forEach(el=>el.classList.toggle('pick',+el.dataset.h===SCpick));showCell(SCpick)};
 
