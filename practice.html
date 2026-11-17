@@ -401,6 +401,66 @@ body.v-charts .wrap{max-width:1320px}
 .dscard .dnext{margin-top:22px}
 @media (max-width:600px){.dacts .btn{font-size:15px;min-height:58px}.dbar .tgl{padding:8px 10px}}
 html[lang=ru] .dacts .btn{font-size:15px}
+/* Back button next to the tabs: only on phones, where the header is hidden */
+.vback{display:none}
+@media (max-width:600px){
+  /* No header in practice: tabs + a separate Back button instead */
+  .nav{display:none}
+  .wrap{padding-top:calc(10px + env(safe-area-inset-top))}
+  .vtabs{width:100%;background:none;border:0;padding:0;gap:0}
+  .vtabs button{flex:1;background:var(--p2);border:1px solid var(--line);border-radius:0;padding:11px 4px;font-size:15px}
+  .vtabs button:first-child{border-radius:12px 0 0 12px}
+  .vtabs button[data-v="drills"]{border-radius:0 12px 12px 0}
+  .vtabs button + button{border-left:0}
+  .vtabs button.on{border-color:var(--y)}
+  .vback{display:flex;align-items:center;justify-content:center;flex:none;margin-left:10px;padding:0 14px;border-radius:12px;background:#2C2C36;border:1px solid #4A4A58;color:#fff;text-decoration:none;font:900 italic 15px var(--display);text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+
+  /* Play: your cards | message, buttons underneath */
+  .dock{grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center}
+  .mine{flex-direction:column;gap:6px;min-width:0}
+  .mine .hn{text-align:center;width:auto;font-size:15px}
+  .info{min-height:0}
+  .info .msg{font-size:14px}
+  .coach{font-size:12px;padding:8px 10px}
+  .acts,.result{grid-column:1 / -1;min-height:0}
+
+  /* Charts: players | stack */
+  .sbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+  .sbar .k{font-size:9px;letter-spacing:.06em}
+  .sbar .pills{width:100%;display:flex;flex-wrap:nowrap;gap:2px;padding:3px}
+  .sbar .pill{flex:1;padding:7px 0;font-size:12px;text-align:center}
+  .sbar .snote{grid-column:1 / -1;font-size:11px}
+  /* Situation | board + pot, then actions | hand details */
+  .side{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px 8px;grid-template-areas:"k board" "t board" "sum cinfo"}
+  #sBoard{grid-area:board}#spotK{grid-area:k;font-size:9px}#spotT{grid-area:t;font-size:18px}
+  #sum{grid-area:sum}#cinfo{grid-area:cinfo;margin-top:0;font-size:12px;min-height:0}
+  #sBoard:empty{display:block}
+  .sa{grid-template-columns:10px minmax(0,1fr) auto;gap:6px;padding:9px 8px;font-size:12px}
+  .sa i{width:10px;height:10px}.sa em{font-size:12px}.sa small{font-size:9px}
+  .cinfo h4{font-size:18px}.cinfo .row{font-size:11px}
+  #sum .btn{padding:12px 6px;font-size:14px}
+
+  /* Drills: mode row, then score + Settings + Reset row */
+  .dbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+  .dbar #dMode{grid-column:1 / -1;width:100%;display:flex;flex-wrap:nowrap}
+  .dbar #dMode .pill{flex:1;text-align:center;padding:9px 4px;font-size:12px}
+  .dbar .sp{display:none}
+  .dbar .stat b{font-size:18px}
+  .dbar .tgl{padding:8px 4px;font-size:10px}
+  /* Seat view | question and cards */
+  .dq{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px 10px;grid-template-areas:"k k" "mt h3" "mt ctx" "mt cards" "name name" "hist hist";align-items:start}
+  .dq > .k{grid-area:k}.dq > h3{grid-area:h3;font-size:20px;margin-top:0}.dq > p.ctx:first-of-type{grid-area:ctx;font-size:12px;margin-top:2px}
+  .dq > .mt{grid-area:mt;aspect-ratio:.9;margin:0;align-self:stretch}
+  .dq > .dcards{grid-area:cards;margin-top:6px}
+  .dq > p.ctx:nth-of-type(2){grid-area:name}.dq > .dhist{grid-area:hist}
+  .dq:has(.dboard){grid-template-areas:"k k" "mt h3" "mt ctx" "cards cards" "name name" "hist hist"}
+  .dq .dcards .pc.lg{width:46px;height:64px;font-size:18px}
+  .dq .dcards .lbl{font-size:9px}
+  .mt .mtf{inset:20% 18%}
+  .mav{width:30px;height:30px;font-size:9px}.ms{width:48px}.mtx{font-size:8px;letter-spacing:0}
+  .mt .mtf .k{font-size:8px}.mt .mtf b{font-size:13px}
+  .mdb{font-size:7px;padding:1px 3px;right:-6px}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
@@ -419,7 +479,7 @@ html[lang=ru] .dacts .btn{font-size:15px}
 
 <main class="wrap">
   <div class="vtabs" id="vtabs" role="tablist">
-    <button data-v="play" data-t="vPlay">Play</button><button data-v="charts" data-t="vCharts">Charts</button><button data-v="drills" data-t="vDrills">Drills</button>
+    <button data-v="play" data-t="vPlay">Play</button><button data-v="charts" data-t="vCharts">Charts</button><button data-v="drills" data-t="vDrills">Drills</button><a class="vback" href="index.html" data-t="vBack">← Back</a>
   </div>
 
   <section class="panel strat v-charts" id="charts">
@@ -928,7 +988,7 @@ applyLang();
 <script>
 /* ---------- Strategy charts ---------- */
 Object.assign(T,{
-  vPlay:['Play','Игра'],vCharts:['Charts','Таблицы'],vDrills:['Drills','Тренировка'],
+  vBack:['← Back','← Назад'],  vPlay:['Play','Игра'],vCharts:['Charts','Таблицы'],vDrills:['Drills','Тренировка'],
   sPlayers:['Players at the table','Игроков за столом'],sStack:['Stack (big blinds)','Стек (в больших блайндах)'],
   sFoot:['These charts are a simplified guide built from common solver-style ranges, not exact solver results. Tap an action on the right to see what the next player should do.','Это упрощённые таблицы на основе типичных диапазонов солверов, а не точные расчёты. Нажмите на действие справа, чтобы увидеть, что делать следующему игроку.'],
   dRight:['Right','Верно'],dStreak:['Streak','Серия'],dReset:['Reset','Сбросить']

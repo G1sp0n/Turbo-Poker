@@ -488,6 +488,66 @@ body.fs-lock .nav,body.fs-lock main{visibility:hidden}
 .timer-page.tp-phone:not(.fake) .tside li b{font-size:2.5vmin}
 .timer-page.tp-phone:not(.fake) .mc{width:4.5vmin;height:6.2vmin;font-size:2.1vmin;border-radius:.8vmin}
 .timer-page.tp-phone:not(.fake) .mc i{font-size:2.2vmin}
+/* Hidden on bigger screens: only the phone layout uses these */
+.hlinks .rl,.fs-quick{display:none}
+.hlinks{display:flex;gap:8px;flex-wrap:wrap}
+/* ---------- Phone layout: sections paired side by side so more fits on one screen ---------- */
+@media (max-width:760px){
+  /* Header slides away while scrolling down and comes back when scrolling up */
+  .nav{transition:transform .25s ease}
+  body.nav-up .nav{transform:translateY(-100%)}
+  /* Covers the status bar and Dynamic Island once the header is gone */
+  body::after{content:"";position:fixed;left:0;right:0;top:0;height:env(safe-area-inset-top);background:var(--bg);z-index:30;pointer-events:none}
+}
+@media (max-width:600px){
+  main.wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 8px;align-items:start}
+  main.wrap > *{grid-column:1 / -1;min-width:0}
+  main.wrap > .row{display:contents}
+  /* Order: links + players/timer, live board, ladder | each player gets, Big League | side pots, then hands and cheat sheet */
+  #setup{order:1}.status{order:2}
+  #ladderSec{order:3;grid-column:1}#chips{order:4;grid-column:2}
+  #ladder{order:5;grid-column:1;align-self:stretch}.card.each{order:6;grid-column:2;align-self:stretch}
+  .card.cu{order:7;grid-column:1;grid-row:span 3;align-self:stretch}
+  #pots{order:8;grid-column:2}.sp-who{order:9;grid-column:2}.sp-potsc{order:10;grid-column:2}
+  #hands{order:11}.hands-card{order:12}#rules{order:13}.cheat-card{order:14}
+  /* Section titles in a half-width column */
+  #ladderSec,#chips,#pots{margin-top:6px}
+  #ladderSec h2,#chips h2,#pots h2{font-size:20px}
+  #ladderSec .num,#chips .num,#pots .num{margin-right:6px;font-size:10px;padding:2px 6px}
+  .sec .hint{display:none}
+  /* Hero: links side by side, then players | full-screen timer */
+  .hlinks{flex-wrap:nowrap}
+  .hlinks .prac-link{flex:1;text-align:center;font-size:11px;padding:9px 6px;margin-top:12px;letter-spacing:.03em}
+  .hlinks .rl{display:block}
+  .pick{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:8px;align-items:stretch}
+  .pick .seg-label{grid-column:1 / -1;margin-bottom:0}
+  .seg{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+  .seg button{height:46px;font-size:26px;border-radius:10px}
+  .seg button small{display:none}
+  .fs-quick{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:0;border-radius:12px;background:var(--y);color:var(--ink);font:900 italic 15px/1.05 var(--display);text-transform:uppercase;letter-spacing:.02em;padding:8px;text-align:center}
+  .fs-quick b{font-size:22px;font-style:normal}
+  /* Half-width cards */
+  .card.each,.card.cu,.sp-who,.sp-potsc{padding:14px}
+  .card.each h3,.card.cu h3,.sp-who h3,.sp-potsc h3{font-size:17px;line-height:1.05}
+  .card.cu .sub,.sp-who .sub,.sp-potsc .sub{font-size:11px;line-height:1.35}
+  .card.each .total,.card.cu .total{font-size:40px;margin:8px 0 10px}
+  .card.cu .pills{gap:3px;padding:3px}.card.cu .pill{padding:7px 8px;font-size:12px}
+  .cu .field{margin:10px 0 8px;gap:6px}.cu input{font-size:26px;padding:2px 8px}.cu .arrow-ico{font-size:20px}
+  /* Blind ladder as a 2-column list */
+  #ladder{grid-template-columns:repeat(2,minmax(0,1fr));padding:6px;gap:4px}
+  #ladder .step{padding:7px 2px 8px}
+  #ladder .step .b{font-size:16px}
+  /* Side pots: name on top, then chips + fold */
+  .sp-head{display:none}
+  .sp-row{grid-template-columns:minmax(0,1fr) auto;gap:5px}
+  .sp-row > :first-child{grid-column:1 / -1}
+  .sp-row input{padding:7px 9px;font-size:14px}
+  .sp-row input.amt{font-size:18px;padding:4px 8px}
+  .sp-tools .pill{padding:6px 8px;font-size:11px}
+  .sp-total .total{font-size:30px}
+  /* Bottom buttons are now in the hero */
+  .cheat-card .rules-btn{display:none}
+}
 </style>
 </head>
 <body>
@@ -515,13 +575,14 @@ body.fs-lock .nav,body.fs-lock main{visibility:hidden}
     <div>
       <h1>Turbo<em>Poker</em></h1>
       <p class="lede">Short levels and fast blinds. You start in the Low League with small chips, then switch to the Big League and play until one player has every chip.</p>
-      <a class="prac-link" href="practice.html">Practice against the computer →</a>
+      <div class="hlinks"><a class="prac-link" href="practice.html">Practice against the computer →</a><a class="prac-link rl" href="rules.html">Full rules →</a></div>
     </div>
     <div class="pick">
       <div class="k seg-label">How many players?</div>
       <div class="seg" id="seg">
         <button data-n="2">2<small data-ru="ВДВОЁМ">HEADS-UP</small></button><button data-n="3">3<small data-ru="ИГРОКА">PLAYERS</small></button><button data-n="4">4<small data-ru="ИГРОКА">PLAYERS</small></button><button data-n="5" class="on">5<small data-ru="ИГРОКОВ">PLAYERS</small></button>
       </div>
+      <button class="fs-quick" id="fsQuick" type="button"><b>⛶</b>Full-screen timer</button>
     </div>
   </section>
 
@@ -544,12 +605,12 @@ body.fs-lock .nav,body.fs-lock main{visibility:hidden}
     <div class="trigger" id="trigger"><b>Switch rule</b>At 3 players left, or after Level 5.</div>
   </section>
 
-  <div class="sec rise"><h2><span class="num">01</span>Blind ladder</h2><span class="hint">Tap a level to jump to it</span></div>
+  <div class="sec rise" id="ladderSec"><h2><span class="num">01</span>Blind ladder</h2><span class="hint">Tap a level to jump to it</span></div>
   <div class="panel ladder" id="ladder"></div>
 
   <div class="sec" id="chips"><h2><span class="num">02</span>Chips</h2><span class="hint">Starting stacks and the Big League switch</span></div>
-  <div class="row">
-    <div class="panel card">
+  <div class="row r-chips">
+    <div class="panel card each">
       <h3>Each player gets</h3>
       <div class="total" id="total">100<small>chips</small></div>
       <div id="piles"></div>
@@ -573,14 +634,14 @@ body.fs-lock .nav,body.fs-lock main{visibility:hidden}
   </div>
 
   <div class="sec" id="hands"><h2><span class="num">03</span>Hand rankings</h2><span class="hint">From best to worst</span></div>
-  <div class="panel card">
+  <div class="panel card hands-card">
     <ol class="hands" id="handList"></ol>
     <div class="keys"><span><kbd>Space</kbd>Start / pause</span><span><kbd>N</kbd>Next level</span><span><kbd>F</kbd>Full screen</span><span><kbd>M</kbd>Sound</span><span><kbd>T</kbd>Open timer</span></div>
   </div>
 
   <div class="sec" id="pots"><h2><span class="num">04</span>Side pots</h2><span class="hint">When players go all-in with different stacks</span></div>
-  <div class="row">
-    <div class="panel card">
+  <div class="row r-pots">
+    <div class="panel card sp-who">
       <h3>Who put in what</h3>
       <div class="sub">Enter the total each player put in this hand, across every betting round. Number players starting from the seat left of the dealer. Tap Fold for anyone who folded: their chips stay in the pot, but they can't win it.</div>
       <div class="sp-head k"><span>Player</span><span style="text-align:right">Chips in</span><span></span></div>
@@ -588,7 +649,7 @@ body.fs-lock .nav,body.fs-lock main{visibility:hidden}
       <div class="sp-tools"><button class="pill" id="spAdd">+ Player</button><button class="pill" id="spDel">− Player</button><button class="pill" id="spClear">Clear hand</button></div>
       <div class="sp-total"><span class="k">Total in the middle</span><div class="total" id="spTotal">0</div></div>
     </div>
-    <div class="panel card">
+    <div class="panel card sp-potsc">
       <h3>The pots</h3>
       <div class="sub">Tap who won each pot. Tap two or more players to split it. Pay the last side pot first, then work back to the main pot.</div>
       <div id="spPots"></div>
@@ -597,7 +658,7 @@ body.fs-lock .nav,body.fs-lock main{visibility:hidden}
   </div>
 
   <div class="sec" id="rules"><h2><span class="num">05</span>Dealer cheat sheet</h2><span class="hint">The rules that cause arguments</span></div>
-  <div class="panel card">
+  <div class="panel card cheat-card">
     <ol class="rules">
       <li><b>Heads-up (2 players).</b> The dealer posts the small blind and acts first before the flop, then last on every later round.</li>
       <li><b>Minimum raise.</b> A raise must be at least as big as the last bet or raise. Blinds 25/50, someone raises to 150 (+100), so the next raise is to at least 250.</li>
@@ -919,6 +980,9 @@ $('goBig').onclick=()=>{$('modal').classList.remove('show');setLevel(5)};
 $('old').oninput=colorUp;
 $('soundBtn').onclick=()=>{sound=!sound;render();if(sound)beep(1)};
 $('fsBtn').onclick=fullscreen;
+// Phone: quick button for the full-screen timer, and the header that hides while scrolling down
+$('fsQuick').onclick=()=>$('fsBtn').click();
+(function(){let ly=scrollY;addEventListener('scroll',()=>{const y=scrollY;if(Math.abs(y-ly)<6)return;document.body.classList.toggle('nav-up',y>ly&&y>80);ly=y},{passive:true})})();
 // Centre each hand list halfway between the clock numbers and the panel edge
 function placeSides(){
   // Uses layout offsets, so it also works when the phone timer is drawn sideways
@@ -1041,6 +1105,7 @@ const RU={
   'When a split pot doesn\'t divide evenly, the extra chip goes to the winner closest to the left of the button. The calculator does this for you.':'Если банк не делится поровну, лишняя фишка достаётся победителю, который сидит ближе всех слева от баттона. Калькулятор считает это сам.',
   'Full rules and whose turn it is →':'Все правила и чей ход →',
   'Practice against the computer →':'Сыграть с компьютером →','Practice':'Практика',
+  'Full rules →':'Правила →','Full-screen timer':'Таймер на весь экран',
   '↑ Setup':'↑ Настройка','Sound on/off (M)':'Звук вкл/выкл (M)','Full screen (F)':'Весь экран (F)','Turn sound on or off':'Включить или выключить звук',
   'Blinds':'Блайнды','Reset':'Заново','Adjust':'Время','−1 min':'−1 мин','+1 min':'+1 мин','Level length':'Длина уровня','min':'мин',
   'Players':'Игроки','Played':'Сыграно',

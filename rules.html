@@ -232,6 +232,37 @@ footer a{color:var(--mute)}
 .who.mine .k{color:#fff;padding-right:28px}
 .who-x{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:8px;border:0;background:rgba(255,255,255,.08);color:#fff;font:700 16px/1 var(--mono);cursor:pointer}
 .who-x:hover{background:rgba(255,255,255,.18)}
+/* ---------- Phone layout: pieces side by side so the walkthrough fits on one screen ---------- */
+@media (max-width:760px){
+  /* Header slides away while scrolling down and comes back when scrolling up */
+  .nav{transition:transform .25s ease}
+  body.nav-up .nav{transform:translateY(-100%)}
+  body::after{content:"";position:fixed;left:0;right:0;top:0;height:env(safe-area-inset-top);background:var(--bg);z-index:30;pointer-events:none}
+}
+@media (max-width:600px){
+  /* Players | Move dealer */
+  .opts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:end;margin-bottom:10px}
+  .opts .pills{width:100%;justify-content:space-between}
+  .opts .pill{padding:7px 0;flex:1;text-align:center}
+  #moveBtn{width:100%;padding:9px 6px;font-size:12px}
+  /* Steps on top, then step text | Whose turn, then Back | Next */
+  .walk > div:last-child{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 10px;
+    grid-template-areas:"steps steps" "k who" "t who" "p who" "nav nav";align-content:start}
+  .walk > div:last-child{min-height:0!important}
+  .steps{grid-area:steps;margin-bottom:12px}
+  .stage-k{grid-area:k;font-size:10px}
+  .stage-t{grid-area:t;font-size:24px;min-height:2em}
+  .stage-p{grid-area:p;font-size:13px;line-height:1.45;margin-top:6px;min-height:10.2em}
+  .who{grid-area:who;margin-top:0;font-size:13px;line-height:1.4;padding:10px;min-height:0;align-self:stretch}
+  .nav-btns{grid-area:nav;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);padding-top:12px}
+  .nav-btns .btn,.nav-btns #next{min-width:0;width:100%;padding:13px 6px;font-size:16px}
+  /* Option tiles 3 × 2; tap a tile for the full explanation */
+  .acts{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .act{padding:12px 8px;text-align:center}
+  .act b{font-size:18px}
+  .act span{display:none}
+  .act em{font-size:9px;letter-spacing:.03em;margin-top:4px}
+}
 </style>
 </head>
 <body>
@@ -802,6 +833,8 @@ $('steps').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;step=+b
 $('prev').onclick=()=>{if(step>0){step--;render()}};
 $('next').onclick=()=>{if(step<STEPS.length-1)step++;else{btn=(btn+1)%n;step=0}render()};
 document.addEventListener('keydown',e=>{if(openOpt){if(e.key==='Escape')closeDetails();return}if(e.key==='ArrowRight')$('next').click();else if(e.key==='ArrowLeft')$('prev').click()});
+// Phone: header hides while scrolling down
+(function(){let ly=scrollY;addEventListener('scroll',()=>{const y=scrollY;if(Math.abs(y-ly)<6)return;document.body.classList.toggle('nav-up',y>ly&&y>80);ly=y},{passive:true})})();
 render();renderHands();applyLang();
 </script>
 </body>
