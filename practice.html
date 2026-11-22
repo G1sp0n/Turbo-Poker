@@ -1091,14 +1091,50 @@ function parseRange(str){
   });
   return out;
 }
-// Opening charts for 6-max at 100 bb, shaped like common solver charts (raise first in)
+// Opening charts (raise first in). Full-colour hands come straight from the Preflop Wizard GTO charts (Oct 2026).
+// Their hand lists add up to a bit less than the share they quote, so the hands just outside the list are mixed in to reach it.
 const RFI={
-  UTG:parseRange('AA-77 66@.85 55@.7 44@.5 33@.4 22@.35 AKs-ATs A9s@.85 A8s@.6 A7s@.5 A6s@.45 A5s A4s@.8 A3s@.6 A2s@.45 KQs KJs KTs K9s@.4 QJs QTs Q9s@.2 JTs J9s@.2 T9s@.7 98s@.35 87s@.2 76s@.2 65s@.1 AKo AQo AJo ATo@.55 KQo KJo@.4'),
-  HJ:parseRange('AA-55 44@.8 33@.65 22@.6 AKs-A2s KQs-K9s K8s@.4 QJs-Q9s JTs J9s T9s T8s@.4 98s 87s@.6 76s@.5 65s@.4 54s@.2 AKo-ATo A9o@.3 KQo KJo KTo@.35 QJo@.5'),
-  CO:parseRange('AA-22 AKs-A2s KQs-K7s K6s@.6 K5s@.4 QJs-Q8s Q7s@.3 JTs-J8s J7s@.2 T9s T8s T7s@.3 98s 97s 87s 86s@.4 76s 75s@.2 65s 54s@.6 AKo-A8o A7o@.5 A5o@.5 A6o@.2 KQo-KTo K9o@.4 QJo QTo Q9o@.2 JTo J9o@.2 T9o@.2'),
-  BTN:parseRange('AA-22 AKs-A2s KQs-K2s QJs-Q3s Q2s@.5 JTs-J5s J4s@.5 T9s-T6s T5s@.4 98s-96s 95s@.5 87s-85s 76s-74s 65s-64s 63s@.3 54s 53s 43s@.5 AKo-A2o KQo-K8o K7o@.6 K6o@.3 QJo-Q9o Q8o@.4 JTo J9o J8o@.4 T9o T8o@.5 98o@.4 87o@.2'),
-  SB:parseRange('AA-22 AKs-A2s KQs-K3s K2s@.6 QJs-Q5s Q4s@.5 JTs-J7s J6s@.4 T9s-T7s T6s@.4 98s 97s 96s@.3 87s 86s 85s@.2 76s 75s 65s 64s@.4 54s 53s@.3 AKo-A4o A3o@.5 A2o@.4 KQo-K9o K8o@.5 QJo-Q9o JTo J9o@.6 T9o@.5 98o@.2')
+  // 6-max, 100 bb. UTG ~15%, HJ ~19%, CO ~27%, BTN ~43%, SB ~36%
+  UTG:parseRange('22+ ATs+ AJo+ KQs KJs QJs JTs T9s A9s@.6 A8s@.4 A7s@.3 A6s@.3 A5s@.6 A4s@.4 A3s@.3 KTs@.7 K9s@.2 QTs@.5 J9s@.2 98s@.4 87s@.2 76s@.2 65s@.2 ATo@.4 KQo@.6 KJo@.3 QJo@.2'),
+  HJ:parseRange('22+ A9s+ ATo+ KTs+ KQo QTs+ JTs T9s 98s A8s@.7 A7s@.6 A6s@.5 A5s A4s@.7 A3s@.5 A2s@.4 K9s@.7 Q9s@.5 J9s@.6 T8s@.4 87s@.6 76s@.5 65s@.4 54s@.2 A9o@.4 KJo@.8 KTo@.3 QJo@.5'),
+  CO:parseRange('22+ A2s+ A8o+ K9s+ KTo+ Q9s+ QTo+ J9s+ JTo T8s+ 97s+ 87s 76s 65s K8s@.7 K7s@.5 K6s@.4 K5s@.4 Q8s@.6 J8s@.5 86s@.5 75s@.2 54s@.6 A7o@.5 A5o@.3 K9o@.2'),
+  BTN:parseRange('22+ A2s+ A2o+ K2s+ K7o+ Q4s+ Q9o+ J7s+ J9o+ T7s+ T9o 96s+ 86s+ 75s+ 65s 54s Q3s@.6 Q2s@.4 J6s@.6 J5s@.4 T6s@.6 95s@.4 85s@.5 74s@.4 64s@.6 53s@.5 K6o@.2'),
+  SB:parseRange('22+ A2s+ A4o+ K4s+ K9o+ Q7s+ QTo+ J8s+ JTo T8s+ 97s+ 87s 76s 65s 54s K3s@.7 K2s@.5 Q6s@.7 Q5s@.5 J7s@.6 T7s@.6 96s@.5 86s@.6 75s@.5 64s@.4 53s@.4 A3o@.6 A2o@.4 K8o@.4 Q9o@.5 J9o@.4 T9o@.3')
 };
+// Shorter stacks, from the same guide's tournament charts (40 bb and 20 bb)
+const RFI40={
+  UTG:parseRange('22+ ATs+ KTs+ QTs+ JTs T9s AJo+ KQo'),
+  HJ:parseRange('22+ A8s+ KTs+ Q9s+ J9s+ T9s 98s ATo+ KJo+'),
+  CO:parseRange('22+ A2s+ K8s+ Q8s+ J8s+ T8s+ 97s+ 87s A7o+ KTo+ QJo'),
+  BTN:parseRange('22+ A2s+ K4s+ Q7s+ J8s+ T8s+ 97s+ 86s+ 76s A2o+ K8o+ Q9o+ J9o+'),
+  SB:parseRange('22+ A2s+ K6s+ Q8s+ J8s+ T8s+ 97s+ A4o+ K9o+ QTo+')
+};
+const RFI20={
+  UTG:parseRange('22+ ATs+ KTs+ QJs JTs AJo+ KQo'),
+  HJ:parseRange('22+ A8s+ KTs+ QTs+ J9s+ T9s ATo+ KJo+'),
+  CO:parseRange('22+ A2s+ K8s+ Q9s+ J8s+ T8s+ 97s+ 87s A8o+ KTo+ QJo'),
+  BTN:parseRange('22+ A2s+ K4s+ Q6s+ J7s+ T7s+ 96s+ 85s+ 76s 65s A2o+ K7o+ Q9o+'),
+  SB:parseRange('22+ A2s+ K5s+ Q7s+ J8s+ T8s+ 97s+ A4o+ K9o+ QTo+')
+};
+// 10 bb: all in or fold. Heads-up the dealer goes all in with almost everything.
+const PUSH10={
+  UTG:parseRange('22+ A2s+ A9o+ KTs+ KQo QJs'),
+  HJ:parseRange('22+ A2s+ A7o+ K8s+ KJo+ Q9s+ QJo J9s+ T9s'),
+  CO:parseRange('22+ A2s+ A4o+ K4s+ K9o+ Q7s+ QTo+ J8s+ JTo T8s+ 97s+ 87s'),
+  BTN:parseRange('22+ A2s+ A2o+ K2s+ K6o+ Q5s+ Q9o+ J7s+ J9o+ T7s+ T9o 97s+ 87s 76s'),
+  SB:parseRange('22+ A2s+ A2o+ K2s+ K4o+ Q3s+ Q8o+ J6s+ J9o+ T7s+ T9o 97s+ 87s 76s'),
+  HU:parseRange('22+ A2s+ A2o+ K2s+ K2o+ Q2s+ Q5o+ J5s+ J8o+ T7s+ T9o 97s+ 87s 76s 65s')
+};
+// Calling someone's 10 bb all in, by the seat that went all in
+const JAMCALL={
+  UTG:parseRange('TT+ AQs+ AKo'),
+  HJ:parseRange('99+ AJs+ AQo+'),
+  CO:parseRange('88+ ATs+ AJo+ KQs'),
+  BTN:parseRange('66+ A9s+ ATo+ KQs KJs'),
+  SB:parseRange('55+ A8s+ A9o+ KTs+ KQo QJs')
+};
+// Heads-up dealer open, 100 bb (~85%)
+const HUOPEN=parseRange('22+ A2s+ A2o+ K2s+ K2o+ Q2s+ Q5o+ J4s+ J7o+ T6s+ T8o+ 96s+ 98o 86s+ 75s+ 65s 54s');
 (function(){
   // Raw strength (Chen-style points): used for all-in spots and value re-raises
   const pts=r=>r===12?10:r===11?8:r===10?7:r===9?6:(r+2)/2;
@@ -1163,22 +1199,27 @@ function nextActor(g){
 }
 function node(g,q){
   const p=g.pos[q],isBB=p==='BB',isSB=p==='SB',hu=g.n===2,AI=ALLIN_AT[g.st];
-  let R=0,C=0,acts,noFold=false,bluff=false,chart=null,ord='pp';
+  let R=0,C=0,acts,noFold=false,bluff=false,chart=null,cchart=null,ord='pp';
   if(g.r===0){
     if(g.limp&&isBB){acts=['check','raise'];R=.34;noFold=true}
-    else if(g.st===10){R=hu?.62:PUSH[p];acts=['fold','allin'];ord='pr'}
+    else if(g.st===10){chart=PUSH10[hu?'HU':p];acts=['fold','allin']}
     else{
-      // Deep enough for the real opening charts; shorter stacks open a little tighter
-      if(g.st>=40&&!hu)chart=RFI[p];
-      else{R=hu?.8:OPEN[p]*(g.st===20?.92:1);if(g.st===20)ord='pr'}
+      if(hu){if(g.st>=40)chart=HUOPEN;else{R=.8;ord='pr'}}
+      else chart=(g.st>=75?RFI:g.st===40?RFI40:RFI20)[p];
       acts=['fold','raise'];
     }
-  }else if(g.allin){C=g.F*(isBB?.75:.6);acts=['fold','call'];ord='pr'}
+  }else if(g.allin){
+    // Facing a 10 bb all in with nobody else in yet: use the calling chart for that seat
+    const op=g.pos[g.opener];
+    if(g.st===10&&g.r===1&&!g.callers&&JAMCALL[op]&&!hu)cchart=JAMCALL[op];
+    else C=g.F*(isBB?.75:.6);
+    acts=['fold','call'];ord='pr'}
   else{
     const F=g.F;ord='pp';
     if(g.r===1){
-      // Big blind defends about 30% against an early open and about 65% against the button
-      if(isBB){R=F*.28;C=Math.min(.7,F*1.1+.16)-R}else if(isSB){R=F*.32;C=F*.1}else{R=F*.22;C=F*(p==='BTN'?.42:.28)}
+      // Sized to the guide: the big blind keeps ~40% vs an early open and ~60% vs the button;
+      // the small blind and early seats mostly re-raise or fold; the button also calls some suited and paired hands
+      if(isBB){R=.03+F*.12;C=Math.min(.68,.29+F*.72)-R}else if(isSB){R=F*.14;C=F*.03}else{R=F*.22;C=F*(p==='BTN'?.24:.08)}
       if(g.st===20){R=F*.35;C*=.55;ord='pr'}
       bluff=g.st>20;
     }else if(g.r===2){const orig=q===g.opener;R=F*(orig?.3:.18);C=F*(orig?.5:.1);if(g.st===40)C*=.5;bluff=g.st===75}
@@ -1187,7 +1228,7 @@ function node(g,q){
     acts=['fold','call','raise'];
   }
   if(acts.includes('raise')&&g.r+1>=AI)acts[acts.indexOf('raise')]='allin';
-  return {p,q,R,C,acts,noFold,bluff,chart,ord,size:raiseSize(g,q)};
+  return {p,q,R,C,acts,noFold,bluff,chart,cchart,ord,size:raiseSize(g,q)};
 }
 // Rough raise sizes in big blinds, for the labels
 function raiseSize(g,q){
@@ -1205,6 +1246,7 @@ function freqs(nd){
   return H169.map((h,i)=>{
     let r,c;
     if(nd.chart){r=nd.chart[i];c=0}
+    else if(nd.cchart){r=0;c=nd.cchart[i]}
     else{
       // Value re-raises use raw strength; calls use how playable the hand is
       const pv=nd.ord==='pr'||nd.R<.12?h.pr:h.pp;
